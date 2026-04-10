@@ -1,6 +1,15 @@
 # Skopiuj do android/key.properties (plik jest w .gitignore).
-# Ścieżka storeFile względem katalogu android/app/
-storeFile=napstack-release.jks
-storePassword=***
-keyAlias=***
-keyPassword=***
+# Wygeneruj magazyn (wymaga JDK w PATH), np.:
+#
+# keytool -genkeypair -v -storetype PKCS12 \
+#   -keystore android/app/napstack-upload.jks \
+#   -alias napstackUpload \
+#   -keyalg RSA -keysize 2048 -validity 10000 \
+#   -dname "CN=NapStack Release, OU=Mobile, O=NapStack, L=Warsaw, ST=Mazovia, C=PL"
+#
+# storeFile — względem katalogu android/app/
+
+storeFile=napstack-upload.jks
+storePassword=WpiszHasloMagazynu
+keyAlias=napstackUpload
+keyPassword=WpiszHasloKlucza

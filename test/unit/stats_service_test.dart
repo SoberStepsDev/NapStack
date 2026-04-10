@@ -33,12 +33,12 @@ void main() {
   }
 
   /// Dziś o północy (bez czasu).
-  DateTime get today {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day);
+  DateTime today() {
+    final n = DateTime.now();
+    return DateTime(n.year, n.month, n.day);
   }
 
-  DateTime daysAgo(int n) => today.subtract(Duration(days: n));
+  DateTime daysAgo(int n) => today().subtract(Duration(days: n));
 
   // computeFromSessions() nigdy nie wywołuje SessionsService (_sessions).
   // Używamy null as dynamic — bezpieczne dopóki testujemy wyłącznie
@@ -65,20 +65,20 @@ void main() {
   group('_calculateStreak', () {
     test('brak ukończonych sesji → streak = 0', () {
       final sessions = [
-        completedSession(today, completed: false),
+        completedSession(today(), completed: false),
       ];
       final stats = sut.computeFromSessions(sessions);
       expect(stats.streak, 0);
     });
 
     test('tylko dziś → streak = 1', () {
-      final stats = sut.computeFromSessions([completedSession(today)]);
+      final stats = sut.computeFromSessions([completedSession(today())]);
       expect(stats.streak, 1);
     });
 
     test('wczoraj i dziś → streak = 2', () {
       final stats = sut.computeFromSessions([
-        completedSession(today),
+        completedSession(today()),
         completedSession(daysAgo(1)),
       ]);
       expect(stats.streak, 2);
@@ -97,7 +97,7 @@ void main() {
     test('luka w serii → streak liczy tylko ciągłą część', () {
       // Dziś + 3 dni temu — luka 2 dni temu i wczoraj.
       final stats = sut.computeFromSessions([
-        completedSession(today),
+        completedSession(today()),
         completedSession(daysAgo(3)),
       ]);
       expect(stats.streak, 1);
@@ -105,8 +105,8 @@ void main() {
 
     test('wiele sesji tego samego dnia liczy się jako 1 dzień serii', () {
       final stats = sut.computeFromSessions([
-        completedSession(today),
-        completedSession(today), // duplikat dnia
+        completedSession(today()),
+        completedSession(today()), // duplikat dnia
         completedSession(daysAgo(1)),
       ]);
       expect(stats.streak, 2);
@@ -134,7 +134,7 @@ void main() {
     test('nieukończone sesje nie liczą się do serii', () {
       // Tylko dziś jest ukończona; wczoraj nieukończona.
       final stats = sut.computeFromSessions([
-        completedSession(today, completed: true),
+        completedSession(today(), completed: true),
         completedSession(daysAgo(1), completed: false),
       ]);
       expect(stats.streak, 1);
@@ -146,15 +146,15 @@ void main() {
   group('_activeDays (via activeDaysCount)', () {
     test('sesje z tego samego dnia → 1 aktywny dzień', () {
       final stats = sut.computeFromSessions([
-        completedSession(today),
-        completedSession(today),
+        completedSession(today()),
+        completedSession(today()),
       ]);
       expect(stats.activeDaysCount, 1);
     });
 
     test('3 różne dni → 3 aktywne dni', () {
       final stats = sut.computeFromSessions([
-        completedSession(today),
+        completedSession(today()),
         completedSession(daysAgo(1)),
         completedSession(daysAgo(2)),
       ]);
@@ -167,14 +167,14 @@ void main() {
   group('_favoritePreset', () {
     test('jeden typ → jest faworytem', () {
       final stats = sut.computeFromSessions([
-        completedSession(today, type: NapType.coffeeNap),
+        completedSession(today(), type: NapType.coffeeNap),
       ]);
       expect(stats.favoritePreset, NapType.coffeeNap);
     });
 
     test('dwa typy z remisem → zwraca pierwszy wg iteracji (min. jeden z nich)', () {
       final stats = sut.computeFromSessions([
-        completedSession(today, type: NapType.powerNap),
+        completedSession(today(), type: NapType.powerNap),
         completedSession(daysAgo(1), type: NapType.coffeeNap),
       ]);
       // Remis — jeden z nich; kluczowe że jest non-null.
@@ -183,7 +183,7 @@ void main() {
 
     test('powerNap dominuje → powerNap jest faworytem', () {
       final stats = sut.computeFromSessions([
-        completedSession(today, type: NapType.powerNap),
+        completedSession(today(), type: NapType.powerNap),
         completedSession(daysAgo(1), type: NapType.powerNap),
         completedSession(daysAgo(2), type: NapType.coffeeNap),
       ]);
@@ -196,7 +196,7 @@ void main() {
   group('totalSleepMinutes', () {
     test('sumuje tylko ukończone sesje', () {
       final stats = sut.computeFromSessions([
-        completedSession(today, completed: true),   // 20 min
+        completedSession(today(), completed: true),   // 20 min
         completedSession(daysAgo(1), completed: false), // nie liczy się
       ]);
       expect(stats.totalSleepMinutes, 20);

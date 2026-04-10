@@ -1,16 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/legal/legal_document_assets.dart';
 import '../../core/theme/app_colors.dart';
+import '../../features/auth/account_upgrade_notifier.dart';
 import '../../features/pro/pro_provider.dart';
+import 'account_upgrade_modal.dart';
 
-class PaywallScreen extends ConsumerWidget {
+class PaywallScreen extends ConsumerStatefulWidget {
   const PaywallScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaywallScreen> createState() => _PaywallScreenState();
+}
+
+class _PaywallScreenState extends ConsumerState<PaywallScreen> {
+  /// Czy modal upgrade był już pokazany w tej sesji PaywallScreen.
+  bool _upgradeShown = false;
+
+  @override
+  Widget build(BuildContext context) {
     final proState = ref.watch(proActionsProvider);
+
+    // Reagujemy na sukces zakupu (przejście: loading → data(true)).
+    // Pokazujemy modal upgrade raz — użytkownik może pominąć.
+    ref.listen<AsyncValue<bool>>(proActionsProvider, (prev, next) {
+      final justPurchased =
+          (prev?.isLoading ?? false) && next.value == true && !next.isLoading;
+
+      if (justPurchased && !_upgradeShown && mounted) {
+        _upgradeShown = true;
+        ref.read(accountUpgradeProvider.notifier).reset();
+
+        // Krótkie opóźnienie — dajemy UI chwilę na wyrenderowanie "Pro aktywny"
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (!context.mounted) return;
+          showAccountUpgradeModal(context);
+        });
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.kBgDeep,
@@ -87,6 +117,8 @@ class PaywallScreen extends ConsumerWidget {
                         const SizedBox(height: 12),
                         _RestoreButton(ref: ref),
                         const SizedBox(height: 20),
+                        _PaywallLegalLinks(),
+                        const SizedBox(height: 16),
                         _LegalNote(),
                       ],
                     ),
@@ -420,6 +452,37 @@ class _RestoreButton extends StatelessWidget {
     return TextButton(
       onPressed: () => ref.read(proActionsProvider.notifier).restore(),
       child: const Text('Przywróć zakupy'),
+    );
+  }
+}
+
+class _PaywallLegalLinks extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final style = GoogleFonts.dmSans(
+      fontSize: 12,
+      color: AppColors.kAccent,
+      fontWeight: FontWeight.w600,
+    );
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 4,
+      runSpacing: 4,
+      children: [
+        TextButton(
+          onPressed: () => context.push('/legal/privacy'),
+          child: Text(legalDocumentTitle('privacy', context), style: style),
+        ),
+        TextButton(
+          onPressed: () => context.push('/legal/terms'),
+          child: Text(legalDocumentTitle('terms', context), style: style),
+        ),
+        TextButton(
+          onPressed: () => context.push('/legal/consumer'),
+          child: Text(legalDocumentTitle('consumer', context), style: style),
+        ),
+      ],
     );
   }
 }

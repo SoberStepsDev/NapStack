@@ -108,6 +108,19 @@ class _Header extends StatelessWidget {
                 ),
               ),
 
+              IconButton(
+                onPressed: () => context.push('/legal'),
+                icon: const Icon(
+                  Icons.policy_outlined,
+                  color: AppColors.kTextSecondary,
+                  size: 22,
+                ),
+                tooltip: 'Informacje prawne',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              ),
+              const SizedBox(width: 4),
+
               // Pro badge lub ikona zakupu
               if (isPro)
                 Container(
