@@ -21,9 +21,8 @@ abstract final class SecureKeys {
 /// SharedPreferences → /data/data/com.app/shared_prefs/*.xml (plaintext, root-readable)
 /// SecureStorage     → Android Keystore (hardware-backed na API 23+, software fallback niżej)
 ///
-/// WAŻNE: flutter_secure_storage NIE jest dostępny w Boot Recovery context
-/// (headless FlutterEngine), bo wymaga FlutterPluginRegistry. W BootRecoveryService
-/// używamy SharedPreferences jako fallback tylko dla userId (nie dla sekretów sesji).
+/// Boot recovery: [BootReceiver] rejestruje pluginy przez GeneratedPluginRegistrant,
+/// więc ten magazyn jest dostępny w headless engine tak jak w normalnym procesie.
 class SecureStorageService {
   SecureStorageService() : _storage = _buildStorage();
 

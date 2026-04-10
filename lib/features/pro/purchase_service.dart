@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -58,11 +59,18 @@ class PurchaseService {
     }
   }
 
+  /// Synchronizuje zakupy z RevenueCat i aktualizuje lokalny cache Pro
+  /// (secure storage), tak jak [isProUnlocked] po udanym odczycie z RC.
   Future<bool> restorePurchases() async {
-    final info = await Purchases.restorePurchases();
-    final isActive = info.entitlements.active.containsKey(_kEntitlement);
-    await _storage.setProCached(isActive);
-    return isActive;
+    try {
+      final info = await Purchases.restorePurchases();
+      final isActive = info.entitlements.active.containsKey(_kEntitlement);
+      await _storage.setProCached(isActive);
+      return isActive;
+    } on PlatformException catch (_) {
+      // Bez nadpisywania cache przy błędzie sieci / konfiguracji sklepu.
+      rethrow;
+    }
   }
 }
 
