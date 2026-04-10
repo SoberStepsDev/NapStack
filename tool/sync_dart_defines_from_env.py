@@ -7,6 +7,7 @@ Uruchom z katalogu głównym projektu:
   python3 tool/sync_dart_defines_from_env.py
 
 Nie loguj wyjścia ani zawartości wygenerowego pliku.
+Opcjonalnie: PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL, CONSUMER_INFO_URL (HTTPS).
 """
 
 from __future__ import annotations
@@ -41,9 +42,12 @@ def main() -> int:
         return 1
 
     defines: dict[str, str] = {}
-    rc = load_env_key(env_path, "REVENUECAT_SDK_API_KEY")
-    if rc:
-        defines["RC_PUBLIC_KEY_ANDROID"] = rc
+    rc_direct = load_env_key(env_path, "RC_PUBLIC_KEY_ANDROID")
+    rc_legacy = load_env_key(env_path, "REVENUECAT_SDK_API_KEY")
+    if rc_direct:
+        defines["RC_PUBLIC_KEY_ANDROID"] = rc_direct
+    elif rc_legacy:
+        defines["RC_PUBLIC_KEY_ANDROID"] = rc_legacy
 
     endpoint = load_env_key(env_path, "APPWRITE_API_ENDPOINT")
     if endpoint:
@@ -55,10 +59,20 @@ def main() -> int:
     if project:
         defines["APPWRITE_PROJECT_ID"] = project
 
+    privacy = load_env_key(env_path, "PRIVACY_POLICY_URL")
+    if privacy:
+        defines["PRIVACY_POLICY_URL"] = privacy
+    terms = load_env_key(env_path, "TERMS_OF_SERVICE_URL")
+    if terms:
+        defines["TERMS_OF_SERVICE_URL"] = terms
+    consumer = load_env_key(env_path, "CONSUMER_INFO_URL")
+    if consumer:
+        defines["CONSUMER_INFO_URL"] = consumer
+
     if not defines:
         print(
-            "Brak mapowalnych kluczy: REVENUECAT_SDK_API_KEY, "
-            "APPWRITE_API_ENDPOINT lub APPWRITE_PROJECT_ID (lub legacy APPWRITE_APP_ID).",
+            "Brak mapowalnych kluczy: RC_PUBLIC_KEY_ANDROID (lub REVENUECAT_SDK_API_KEY), "
+            "APPWRITE_*, PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL, CONSUMER_INFO_URL.",
             file=sys.stderr,
         )
         return 1

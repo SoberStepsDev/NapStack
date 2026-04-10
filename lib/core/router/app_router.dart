@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/timer/nap_preset.dart';
 import '../../ui/screens/home_screen.dart';
+import '../../ui/screens/legal_document_screen.dart';
+import '../../ui/screens/legal_info_screen.dart';
 import '../../ui/screens/nap_stack_screen.dart';
 import '../../ui/screens/paywall_screen.dart';
 import '../../ui/screens/stats_screen.dart';
@@ -60,6 +62,23 @@ final appRouter = GoRouter(
         const PaywallScreen(),
         fullscreenDialog: true,
       ),
+    ),
+
+    GoRoute(
+      path: '/legal/privacy',
+      builder: (_, __) => const LegalDocumentScreen(docId: 'privacy'),
+    ),
+    GoRoute(
+      path: '/legal/terms',
+      builder: (_, __) => const LegalDocumentScreen(docId: 'terms'),
+    ),
+    GoRoute(
+      path: '/legal/consumer',
+      builder: (_, __) => const LegalDocumentScreen(docId: 'consumer'),
+    ),
+    GoRoute(
+      path: '/legal',
+      builder: (_, __) => const LegalInfoScreen(),
     ),
   ],
 );

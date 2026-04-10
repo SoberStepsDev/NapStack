@@ -98,6 +98,21 @@ Po wykonaniu w Appwrite pojawią się:
 - Tabele: `nap_sessions`, `nap_stack`, `user_prefs`
 - Wszystkie kolumny i indeksy
 
+Alternatywnie (REST / ten sam schemat): `python3 tool/provision_appwrite.py` z `APPWRITE_API_KEY` w `.env`.
+
+---
+
+### 6a. Referencja wdrożenia — Appwrite Cloud (NapStack)
+
+| Zasób | Wartość |
+|--------|---------|
+| **Project ID** | `69d7218d001dd20138f6` (domyślnie w `appwrite_constants.dart`; nadpisz `--dart-define` w CI) |
+| **Baza (TablesDB)** | ID `napstack` |
+| **Tabele** | `nap_sessions`, `nap_stack`, `user_prefs` |
+| **Funkcja** | ID `pro_gate` — weryfikacja Pro (RevenueCat API v2) |
+
+Zmienne środowiskowe **`pro_gate`** ustaw wyłącznie w konsoli Appwrite: `RC_PROJECT_ID`, `PRO_ENTITLEMENT_ID`, `RC_SECRET_KEY_ANDROID`. **Nie zapisuj** wartości `RC_SECRET_KEY_ANDROID` w repozytorium ani w plikach typu „raport konfiguracji”; przy wycieku **zrotuj klucz** w RevenueCat i zaktualizuj zmienne funkcji.
+
 ---
 
 ### 7. Ustaw zmienne środowiskowe (--dart-define)
@@ -145,24 +160,53 @@ flutter run \
 
 ---
 
-### 9. RevenueCat dashboard
+### 9. RevenueCat dashboard (stan docelowy NapStack)
 
-1. [app.revenuecat.com](https://app.revenuecat.com) — zaloguj się kontem z ekosystemu Patryk AI
-2. **Project → Add App → Google Play**
-3. Wklej Service Account JSON z Google Play
-4. **Entitlements → Create** → ID: `pro`
-5. **Products → Import** → dodaj `napstack_pro_lifetime`
-6. **Offerings → Create Default** → dodaj package z produktem
-7. Skopiuj **Public SDK Key** dla Androida
+W panelu powinno być spójnie z kodem (`purchase_service.dart`, `pro_gate`):
+
+| Zasób | ID / wartość |
+|--------|----------------|
+| Projekt | `NapStack` |
+| RevenueCat **Project ID** (API v2 / funkcja `pro_gate`) | `proj1bd829aa` |
+| Aplikacja Android | `NapStack Android`, package `com.patrykdev.napstack` |
+| **Entitlement** | `pro` |
+| **Product** (Play) | `napstack_pro_lifetime` (one-time / lifetime) |
+| **Offering** | `current` (domyślna oferta) |
+| **Package** w ofercie | identifier `napstack_pro_lifetime` (zgodny z `offerings.current` w SDK) |
+
+Kroki:
+
+1. [app.revenuecat.com](https://app.revenuecat.com)
+2. **Project → Add App → Google Play** — package `com.patrykdev.napstack`
+3. Połączenie z Play: **Service Account JSON** z Google Cloud / Play (wymagane do produkcji)
+4. **Entitlements** → `pro`
+5. **Products** → import `napstack_pro_lifetime` z Play
+6. **Offerings** → offering **`current`** → pakiet z powyższym produktem
+7. **Public SDK Key (Android)** → trafia do builda jako `RC_PUBLIC_KEY_ANDROID` (nie commituj w repo)
+
+**Appwrite Function `pro_gate`** (`functions/pro_gate`): ustaw zmienne środowiskowe w konsoli Appwrite:
+
+- `RC_PROJECT_ID` = `proj1bd829aa`
+- `PRO_ENTITLEMENT_ID` = `pro`
+- `RC_SECRET_KEY_ANDROID` = **Secret API Key (v2)** z RevenueCat (Project Settings → API Keys) — wyłącznie po stronie serwera
 
 ---
 
-### 10. Dodaj RC Key do --dart-define
+### 10. RC Key w buildzie Flutter
+
+**Opcja A — plik `.env` (np. `RC_PUBLIC_KEY_ANDROID=…` lub `REVENUECAT_SDK_API_KEY=…`):**
+
+```bash
+python3 tool/sync_dart_defines_from_env.py
+flutter run --dart-define-from-file=dart_defines.local.json
+```
+
+**Opcja B — ręcznie:**
 
 ```bash
 flutter run \
   --dart-define=APPWRITE_PROJECT_ID=abc123xyz \
-  --dart-define=RC_PUBLIC_KEY_ANDROID=appl_xxxxxxxx
+  --dart-define=RC_PUBLIC_KEY_ANDROID=goog_xxxxxxxx
 ```
 
 ---

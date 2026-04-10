@@ -61,13 +61,8 @@ class AlarmService {
     await android.requestNotificationsPermission();
 
     // 2. USE_FULL_SCREEN_INTENT — API 34+ (Android 14+).
-    //    canUseFullScreenIntent() zwraca null na API < 34 → traktujemy jako true.
-    final canFullScreen = await android.canUseFullScreenIntent() ?? true;
-    if (!canFullScreen) {
-      // Otwiera systemowy ekran Settings dla tego uprawnienia.
-      // Użytkownik może przyznać lub odmówić — nie blokujemy flow apki.
-      await android.requestFullScreenIntentPermission();
-    }
+    //    Plugin udostępnia tylko request; na starszych API wywołanie jest bezbolesne.
+    await android.requestFullScreenIntentPermission();
   }
 
   /// Planuje alarm wybudzenia.

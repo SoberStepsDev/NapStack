@@ -2,6 +2,8 @@
 
 **Baza danych ID:** `napstack`
 
+W **Appwrite Cloud** dane są w **TablesDB** (tabele o ID jak poniżej). Izolacja użytkowników = **row security** + uprawnienia per wiersz ustawiane z aplikacji (odpowiednik „document security” z raportów wdrożenia). Indeksy wdrożone skryptem `tool/provision_appwrite.py`: `idx_sessions_user_started`, `idx_stack_user_done_sched`.
+
 ---
 
 ## Tabela: `nap_sessions`
@@ -19,8 +21,7 @@ Przechowuje historię sesji drzemek — każda sesja to jeden rekord.
 | `quality_rating` | `int` | nie | `null` w v1; zarezerwowane na MirrorMind Q3-2026 |
 
 **Indeksy:**
-- `user_id` (key) — wymagany dla Query.equal
-- `started_at` (key) — wymagany dla Query.orderDesc i Query.greaterThanEqual
+- `idx_sessions_user_started` — `(user_id ASC, started_at DESC)` — pod `Query.equal('user_id')` + `Query.orderDesc('started_at')`
 
 **Uprawnienia kolekcji:** Brak domyślnych — każdy dokument ma własne uprawnienia ustawione przy tworzeniu (`Permission.read/update/delete(Role.user(userId))`).
 
@@ -38,9 +39,7 @@ Zaplanowane drzemki w Nap Stack.
 | `done` | `bool` | tak | Czy alarm minął / zrealizowany |
 
 **Indeksy:**
-- `user_id` (key)
-- `scheduled_iso` (key) — wymagany dla Query.orderAsc
-- `done` (key) — wymagany dla Query.equal('done', false)
+- `idx_stack_user_done_sched` — `(user_id, done, scheduled_iso)` — pod filtrowanie po użytkowniku i `done` oraz sort `scheduled_iso`
 
 **Ograniczenie Free:** Max 3 rekordy z `done == false` per użytkownik.
 Sprawdzane po stronie klienta w `NapStackService.addItem()`.

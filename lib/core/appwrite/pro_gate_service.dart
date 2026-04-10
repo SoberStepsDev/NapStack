@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:appwrite/appwrite.dart';
+import 'package:appwrite/enums.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'appwrite_client.dart';

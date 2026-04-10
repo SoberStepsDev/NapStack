@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/appwrite/appwrite_client.dart';
 import '../../core/appwrite/appwrite_constants.dart';
 import '../../core/appwrite/appwrite_error_handler.dart';
+import '../../core/appwrite/pro_gate_service.dart';
 import '../../core/security/data_validator.dart';
 import '../../core/security/permissions_helper.dart';
 import '../auth/auth_provider.dart';
@@ -12,10 +13,14 @@ import '../timer/nap_preset.dart';
 import 'nap_stack_item_model.dart';
 
 class NapStackService {
-  NapStackService(this._db, this._userId);
+  NapStackService(this._db, this._userId, this._proGate);
 
   final TablesDB _db;
   final String _userId;
+
+  /// Server-side Pro verifier. Używany gdy klient twierdzi isPro == true,
+  /// by zapobiec obejściu limitu przez spreparowany request.
+  final ProGateService _proGate;
 
   static const _uuid = Uuid();
   static const _freeLimit = 3;
@@ -62,10 +67,24 @@ class NapStackService {
       );
     }
 
-    // 2. Sprawdzenie limitu Free
+    // 2. Sprawdzenie limitu Free / weryfikacja Pro
+    //
+    // Strategia dwupoziomowa:
+    //   a) isPro == false → szybki check lokalny (brak funkcji, mniejsza latencja).
+    //   b) isPro == true  → server-side gate przez Appwrite Function (RevenueCat).
+    //      Zapobiega scenariuszowi: zmodyfikowany klient wymusza isPro: true
+    //      i pisze bezpośrednio do Appwrite z pominięciem limitu.
+    //      Przy błędzie funkcji (np. RC offline) → blokujemy (fail-secure).
     if (!isPro) {
       final current = await fetchStack();
       if (current.length >= _freeLimit) throw NapStackLimitException();
+    } else {
+      final serverAllowed = await _proGate.checkProAccess(action: 'addToStack');
+      if (!serverAllowed) {
+        // RevenueCat nie potwierdza Pro — traktuj jak Free.
+        final current = await fetchStack();
+        if (current.length >= _freeLimit) throw NapStackLimitException();
+      }
     }
 
     // 3. Zapis
@@ -124,5 +143,9 @@ class NapStackLimitException implements Exception {
 
 final napStackServiceProvider = Provider<NapStackService>((ref) {
   final userId = ref.watch(authInitProvider).value ?? '';
-  return NapStackService(ref.watch(appwriteTablesDBProvider), userId);
+  return NapStackService(
+    ref.watch(appwriteTablesDBProvider),
+    userId,
+    ref.watch(proGateServiceProvider),
+  );
 });

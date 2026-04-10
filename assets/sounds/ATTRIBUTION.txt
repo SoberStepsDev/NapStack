@@ -1,0 +1,7 @@
+Dźwięki z Mixkit (licencja: https://mixkit.co/license/#sfxFree ).
+Pliki preview MP3 pobrane z assets.mixkit.co — wolne do użycia komercyjnego zgodnie z licencją Mixkit.
+
+- mixkit_bell_notification.mp3 — „Bell notification” (ID 933)
+- mixkit_happy_bells_notification.mp3 — „Happy bells notification” (ID 937)
+
+Alarm systemowy Android: res/raw/gentle_rise.mp3 — „Relaxing bell chime” (ID 3109), używany jako domyślny dźwięk kanału w AlarmService.

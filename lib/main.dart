@@ -48,6 +48,10 @@ class NapStackApp extends ConsumerWidget {
       title: 'NapStack',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
+      supportedLocales: const [
+        Locale('en'),
+        Locale('pl'),
+      ],
       routerConfig: appRouter,
       builder: (context, child) {
         // Obsługa stanu auth — splash / error / app
