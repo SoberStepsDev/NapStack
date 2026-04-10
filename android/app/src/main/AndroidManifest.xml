@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ── Uprawnienia ──────────────────────────────────────────────────── -->
+
+    <!-- Sieć — wymagana przez Appwrite i RevenueCat -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- Alarmy — exactAllowWhileIdle + Doze Mode -->
+    <!-- API 31-32: użytkownik może cofnąć w ustawieniach -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- API 33+: przyznawane automatycznie, nie-revocable (bezpieczniejsze) -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+
+    <!-- Wakelock — utrzymanie procesora aktywnym podczas alarmu -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <!-- Wibracje przy alarmie -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <!-- fullScreenIntent w powiadomieniach (Android 14+ / wymagania Play) -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+
+    <!-- Powiadomienia — wymagane od API 33 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- Boot Recovery — odbieranie ACTION_BOOT_COMPLETED -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
+    <!-- ── Aplikacja ────────────────────────────────────────────────────── -->
+
+    <application
+        android:label="NapStack"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
+
+        <!-- Główne Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
+
+            <!-- Flutter deeplinking -->
+            <meta-data
+                android:name="io.flutter.embedding.android.NormalTheme"
+                android:resource="@style/NormalTheme"/>
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Wymagane przez flutter_local_notifications -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            android:exported="false"/>
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- NapStack Boot Recovery — własny receiver dla Appwrite sync -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Flutter meta -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2"/>
+
+    </application>
+
+</manifest>

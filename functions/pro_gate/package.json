@@ -1,0 +1,13 @@
+{
+  "name": "napstack-pro-gate",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "NapStack Appwrite Function — server-side Pro status gate via RevenueCat",
+  "main": "src/main.js",
+  "engines": {
+    "node": ">=21"
+  },
+  "dependencies": {
+    "node-appwrite": "^15.0.0"
+  }
+}

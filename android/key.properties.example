@@ -1,0 +1,6 @@
+# Skopiuj do android/key.properties (plik jest w .gitignore).
+# Ścieżka storeFile względem katalogu android/app/
+storeFile=napstack-release.jks
+storePassword=***
+keyAlias=***
+keyPassword=***

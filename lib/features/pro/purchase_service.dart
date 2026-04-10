@@ -1,0 +1,71 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+
+import '../../core/security/secure_storage_service.dart';
+
+/// Zarządza statusem Pro przez RevenueCat.
+///
+/// Cache statusu Pro jest przechowywany w flutter_secure_storage
+/// (nie SharedPreferences) — status Pro wpływa na dostęp do funkcji.
+class PurchaseService {
+  PurchaseService(this._storage);
+
+  final SecureStorageService _storage;
+
+  static const _kEntitlement = 'pro';
+  static const _kProductId = 'napstack_pro_lifetime';
+
+  static Future<void> configure(String appUserId) async {
+    await Purchases.configure(
+      PurchasesConfiguration(
+        const String.fromEnvironment(
+          'RC_PUBLIC_KEY_ANDROID',
+          defaultValue: 'REPLACE_WITH_RC_KEY',
+        ),
+      )..appUserID = appUserId,
+    );
+  }
+
+  /// Sprawdza Pro z RC, z fallbackiem na secure storage.
+  Future<bool> isProUnlocked() async {
+    try {
+      final info = await Purchases.getCustomerInfo();
+      final isActive = info.entitlements.active.containsKey(_kEntitlement);
+      await _storage.setProCached(isActive);
+      return isActive;
+    } catch (_) {
+      // Offline lub RC niedostępny — ostatni znany status
+      return _storage.getProCached();
+    }
+  }
+
+  Future<bool> purchasePro() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      final package = offerings.current?.availablePackages
+          .firstWhere((p) => p.storeProduct.identifier == _kProductId);
+
+      if (package == null) throw Exception('Pakiet Pro nie znaleziony.');
+
+      final result = await Purchases.purchase(PurchaseParams.package(package));
+      final isActive =
+          result.customerInfo.entitlements.active.containsKey(_kEntitlement);
+      await _storage.setProCached(isActive);
+      return isActive;
+    } on PurchasesErrorCode catch (e) {
+      if (e == PurchasesErrorCode.purchaseCancelledError) return false;
+      rethrow;
+    }
+  }
+
+  Future<bool> restorePurchases() async {
+    final info = await Purchases.restorePurchases();
+    final isActive = info.entitlements.active.containsKey(_kEntitlement);
+    await _storage.setProCached(isActive);
+    return isActive;
+  }
+}
+
+final purchaseServiceProvider = Provider<PurchaseService>((ref) {
+  return PurchaseService(ref.watch(secureStorageProvider));
+});

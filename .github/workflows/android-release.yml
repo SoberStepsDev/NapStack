@@ -1,0 +1,58 @@
+# Build .aab na serwerach GitHub (możesz zamknąć laptop po push + ręcznym starcie workflow).
+# Wymagane GitHub Secrets (Settings → Secrets):
+#   ANDROID_KEY_PROPERTIES — pełna treść pliku key.properties
+#   ANDROID_KEYSTORE_BASE64 — base64 pliku .jks (np. base64 -i napstack-release.jks | pbcopy)
+# Opcjonalnie:
+#   DART_DEFINES_JSON — treść dart_defines.local.json (RC + Appwrite define)
+name: Android release bundle
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Release signing files
+        env:
+          ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -e
+          if [ -z "$ANDROID_KEY_PROPERTIES" ] || [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "Ustaw sekrety ANDROID_KEY_PROPERTIES i ANDROID_KEYSTORE_BASE64." >&2
+            exit 1
+          fi
+          printf '%s\n' "$ANDROID_KEY_PROPERTIES" > android/key.properties
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/napstack-release.jks
+
+      - name: Dart defines (optional)
+        env:
+          DART_DEFINES_JSON: ${{ secrets.DART_DEFINES_JSON }}
+        run: |
+          if [ -n "$DART_DEFINES_JSON" ]; then
+            printf '%s\n' "$DART_DEFINES_JSON" > dart_defines.local.json
+          fi
+
+      - name: Build app bundle
+        run: |
+          if [ -f dart_defines.local.json ]; then
+            flutter build appbundle --release --dart-define-from-file=dart_defines.local.json
+          else
+            flutter build appbundle --release
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: napstack-release-aab
+          path: build/app/outputs/bundle/release/*.aab
