@@ -1,7 +1,11 @@
 Dźwięki z Mixkit (licencja: https://mixkit.co/license/#sfxFree ).
-Pliki preview MP3 pobrane z assets.mixkit.co — wolne do użycia komercyjnego zgodnie z licencją Mixkit.
+Źródło oryginałów: preview MP3 z assets.mixkit.co — wolne do użycia komercyjnego zgodnie z licencją Mixkit.
 
+Pliki MP3 (oryginał / wariant w assetach):
 - mixkit_bell_notification.mp3 — „Bell notification” (ID 933)
 - mixkit_happy_bells_notification.mp3 — „Happy bells notification” (ID 937)
+- gentle_rise.mp3 — „Relaxing bell chime” (ID 3109), kopia do assetów
 
-Alarm systemowy Android: res/raw/gentle_rise.mp3 — „Relaxing bell chime” (ID 3109), używany jako domyślny dźwięk kanału w AlarmService.
+Pliki OGG: ten sam materiał, ponownie zakodowany (Opus w kontenerze Ogg) przez ffmpeg/libopus.
+
+Alarm w powiadomieniu (FLN): android/app/src/main/res/raw/gentle_rise.ogg — w res/raw jest jeden zasób gentle_rise (bez duplikatu .mp3/.ogg).

@@ -4,6 +4,7 @@
 |----------------|-----------|
 | [DATA_SAFETY.md](DATA_SAFETY.md) | Odpowiedzi pod formularz **Bezpieczeństwo danych** |
 | [CONTENT_RATING.md](CONTENT_RATING.md) | Wskazówki do **klasyfikacji treści (IARC)** |
+| [SPECIAL_ACCESS_DECLARATIONS.md](SPECIAL_ACCESS_DECLARATIONS.md) | Uzasadnienie **exact alarm** i **full-screen intent** w Play |
 | [STORE_LISTING.md](STORE_LISTING.md) | Opisy PL/EN, URL polityki, tekst promocyjny |
 | [hosting/](hosting/) | `privacy_pl.html` + instrukcja publikacji (HTTPS) |
 | [store_graphics/](store_graphics/) | Feature graphic 1024×500 + przykładowy zrzut 1080×1920 |

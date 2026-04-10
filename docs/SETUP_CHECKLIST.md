@@ -30,22 +30,19 @@ Generuje `lib/features/timer/timer_state.freezed.dart`.
 
 ---
 
-### 3. Plik dźwiękowy alarmu — dwie lokalizacje
+### 3. Dźwięki alarmu — MP3 i OGG w assetach, OGG w `res/raw/`
 
-**`assets/sounds/gentle_rise.mp3`** — dla Flutter (deklaracja w pubspec.yaml już jest):
-```
-Pobierz lub nagraj plik ~3s, delikatne narastanie (soft chime / gentle rise).
+- **`assets/sounds/*.mp3`** i **`assets/sounds/*.ogg`** — oba formaty (Ogg/Opus); katalog jest w `pubspec.yaml`.
+- **`android/app/src/main/res/raw/gentle_rise.ogg`** — jeden zasób `gentle_rise` dla `RawResourceAndroidNotificationSound('gentle_rise')` (nie trzymaj jednocześnie `gentle_rise.mp3` w `raw/`).
+
+Regeneracja OGG z MP3 (przykład):
+
+```bash
+ffmpeg -y -i assets/sounds/gentle_rise.mp3 -c:a libopus -b:a 96k assets/sounds/gentle_rise.ogg
+ffmpeg -y -i assets/sounds/gentle_rise.mp3 -c:a libopus -b:a 96k android/app/src/main/res/raw/gentle_rise.ogg
 ```
 
-**`android/app/src/main/res/raw/gentle_rise.ogg`** — dla Android FLN (res/raw):
-```
-Ta sama ścieżka w formacie OGG — Android odtwarza ją bezpośrednio przez AlarmManager,
-niezależnie od Dart VM. Plik musi nazywać się dokładnie: gentle_rise (bez rozszerzenia w kodzie).
-```
-
-> Darmowe źródła: freesound.org, mixkit.co (sekcja "alarms")
-
----
+> Mixkit + atrybucja: `assets/sounds/ATTRIBUTION.txt`.
 
 ### 4. `android/app/build.gradle` — minSdk + targetSdk
 

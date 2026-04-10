@@ -25,6 +25,7 @@ migrate_working_dir/
 
 # Lokalne Dart defines (sekrety z zewnętrznego .env — nigdy nie commituj)
 dart_defines.local.json
+.env
 
 # Android release signing (nigdy nie commituj)
 android/key.properties

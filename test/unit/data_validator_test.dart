@@ -8,7 +8,7 @@ void main() {
 
   const validUserId = 'user-00000001'; // ≥8 znaków
 
-  DateTime get now => DateTime.now();
+  DateTime now() => DateTime.now();
 
   // Poprawna, kompletna sesja Power Nap (20 min drzemki).
   NapSessionValidationResult validateGoodSession({
@@ -19,8 +19,8 @@ void main() {
     int plannedMinutes = 20,
     int? qualityRating,
   }) {
-    final start = startedAt ?? now.subtract(const Duration(minutes: 27));
-    final end = endedAt ?? now;
+    final start = startedAt ?? now().subtract(const Duration(minutes: 27));
+    final end = endedAt ?? now();
     return DataValidator.validateSession(
       userId: userId,
       startedAt: start,
@@ -49,12 +49,12 @@ void main() {
     });
 
     test('fullCycle 90 min — isValid true', () {
-      final start = now.subtract(const Duration(minutes: 100));
+      final start = now().subtract(const Duration(minutes: 100));
       expect(
         DataValidator.validateSession(
           userId: validUserId,
           startedAt: start,
-          endedAt: now,
+          endedAt: now(),
           napType: NapType.fullCycle,
           plannedMinutes: 90,
         ).isValid,
@@ -96,28 +96,28 @@ void main() {
 
   group('validateSession — czasy', () {
     test('endedAt przed startedAt → błąd', () {
-      final start = now;
-      final end = now.subtract(const Duration(minutes: 1));
+      final start = now();
+      final end = now().subtract(const Duration(minutes: 1));
       final r = validateGoodSession(startedAt: start, endedAt: end);
       expect(r.isValid, isFalse);
       expect(r.errors.any((e) => e.contains('endedAt')), isTrue);
     });
 
     test('sesja krótsza niż 60s → błąd', () {
-      final start = now.subtract(const Duration(seconds: 59));
-      final r = validateGoodSession(startedAt: start, endedAt: now);
+      final start = now().subtract(const Duration(seconds: 59));
+      final r = validateGoodSession(startedAt: start, endedAt: now());
       expect(r.isValid, isFalse);
       expect(r.errors.any((e) => e.contains('60s')), isTrue);
     });
 
     test('sesja dokładnie 60s → OK', () {
-      final start = now.subtract(const Duration(seconds: 60));
+      final start = now().subtract(const Duration(seconds: 60));
       // plannedMinutes=1, napType=powerNap → tolerancja ±5 → 1 vs 20 = błąd presetu.
       // Testujemy tylko brak błędu dot. długości — preset sprawdzamy osobno.
       final r = DataValidator.validateSession(
         userId: validUserId,
         startedAt: start,
-        endedAt: now,
+        endedAt: now(),
         napType: NapType.powerNap,
         plannedMinutes: 20, // poprawny preset
       );
@@ -126,11 +126,11 @@ void main() {
     });
 
     test('sesja dłuższa niż 3 godziny → błąd', () {
-      final start = now.subtract(const Duration(hours: 3, seconds: 1));
+      final start = now().subtract(const Duration(hours: 3, seconds: 1));
       final r = DataValidator.validateSession(
         userId: validUserId,
         startedAt: start,
-        endedAt: now,
+        endedAt: now(),
         napType: NapType.fullCycle,
         plannedMinutes: 90,
       );
@@ -139,7 +139,7 @@ void main() {
     });
 
     test('startedAt w przyszłości (>1 min) → błąd', () {
-      final start = now.add(const Duration(minutes: 2));
+      final start = now().add(const Duration(minutes: 2));
       final end = start.add(const Duration(minutes: 20));
       final r = DataValidator.validateSession(
         userId: validUserId,
@@ -163,11 +163,11 @@ void main() {
     });
 
     test('plannedMinutes = 181 → błąd zakresu', () {
-      final start = now.subtract(const Duration(hours: 3, minutes: 2));
+      final start = now().subtract(const Duration(hours: 3, minutes: 2));
       final r = DataValidator.validateSession(
         userId: validUserId,
         startedAt: start,
-        endedAt: now,
+        endedAt: now(),
         napType: NapType.fullCycle,
         plannedMinutes: 181,
       );
