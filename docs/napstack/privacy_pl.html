@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Polityka prywatności — NapStack</title>
+  <style>
+    :root {
+      --bg: #0d1120;
+      --card: #111827;
+      --text: #e8eef8;
+      --muted: #8899bb;
+      --accent: #60c5ff;
+      --border: #1e2f47;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 1rem;
+      padding: 1.5rem;
+      max-width: 44rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 0;
+      color: var(--accent);
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 1.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.35rem;
+    }
+    p, li { color: var(--muted); }
+    strong { color: var(--text); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--card); color: var(--text); }
+    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    a { color: var(--accent); }
+    .lang-switcher {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    .lang-switcher a {
+      margin: 0 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .lang-switcher a.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-switcher">
+    <a href="privacy_pl.html" class="active">Polski</a>
+    <a href="privacy_en.html">English</a>
+  </div>
+
+  <h1>Polityka prywatności NapStack</h1>
+  <p class="meta"><strong>Data ostatniej aktualizacji:</strong> 9 kwietnia 2026 r.</p>
+
+  <h2>1. Wstęp</h2>
+  <p>Niniejsza polityka prywatności wyjaśnia, jak aplikacja mobilna <strong>NapStack</strong> („Aplikacja") przetwarza dane w związku z planowaniem drzemek, alarmami i opcjonalną synchronizacją w chmurze. Aplikacja jest udostępniana przez dewelopera wskazanego w <strong>Google Play</strong> jako wydawca („<strong>Administrator</strong>" lub „<strong>my</strong>").</p>
+  <p>Dokument ma charakter informacyjny. W przypadku sprzeczności z obowiązującym prawem, pierwszeństwo mają przepisy prawa.</p>
+
+  <h2>2. Administrator danych</h2>
+  <p>Administratorem danych osobowych w rozumieniu RODO jest podmiot wskazany jako deweloper aplikacji NapStack w <strong>Google Play Console</strong>. Kontakt z Administratorem możliwy jest przez dane podane na karcie aplikacji w sklepie (adres e-mail wsparcia / strona dewelopera).</p>
+
+  <h2>3. Jakie dane mogą być przetwarzane</h2>
+  <p>W zależności od tego, z jakich funkcji korzystasz, mogą być przetwarzane m.in.:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Kategoria</th>
+        <th>Opis</th>
+        <th>Przykłady</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Identyfikator konta w backendzie</strong></td>
+        <td>Unikalny ID użytkownika przydzielony podczas anonimowego logowania w Appwrite</td>
+        <td>user ID</td>
+      </tr>
+      <tr>
+        <td><strong>Dane o drzemkach i harmonogramie</strong></td>
+        <td>Informacje o planowanych i ukończonych drzemkach wysyłane do synchronizacji</td>
+        <td>typ drzemki, godzina początku i końca, status ukończenia, planowany czas trwania</td>
+      </tr>
+      <tr>
+        <td><strong>Preferencje konta</strong></td>
+        <td>Dane pomocnicze powiązane z Twoim kontem w Aplikacji</td>
+        <td>np. status Pro (cache), identyfikator systemu zakupów</td>
+      </tr>
+      <tr>
+        <td><strong>Dane techniczne i operacyjne</strong></td>
+        <td>Informacje niezbędne do działania Aplikacji</td>
+        <td>np. żądania sieciowe, komunikaty diagnostyczne u dostawców usług (zgodnie z ich politykami)</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Nie zbieramy <strong>celowo</strong> tradycyjnych danych kontaktowych w Aplikacji (np. imię i nazwisko, e-mail), chyba że korzystasz z opcjonalnej funkcji powiązania konta (jeśli będzie dostępna w przyszłości, zostanie opisana osobno).</p>
+
+  <h2>4. Cele i podstawy prawne (RODO)</h2>
+  <p>Przetwarzamy dane w następujących celach:</p>
+  <ol>
+    <li><strong>Świadczenie usługi</strong> — uruchamianie timerów i alarmów, zapisywanie historii, synchronizacja między urządzeniami — <strong>Art. 6 ust. 1 lit. b RODO</strong> (umowa / korzystanie z usługi).</li>
+    <li><strong>Zakupy Pro</strong> — weryfikacja uprawnień, przywracanie zakupów — <strong>Art. 6 ust. 1 lit. b RODO</strong>.</li>
+    <li><strong>Bezpieczeństwo i stabilność</strong> — zapobieganie nadużyciom, diagnostyka błędów w rozsądnym zakresie — <strong>Art. 6 ust. 1 lit. f RODO</strong> (uzasadniony interes) lub <strong>lit. b</strong>, w zależności od kontekstu.</li>
+  </ol>
+
+  <h2>5. Odbiorcy i usługi stron trzecich</h2>
+  <p>Do obsługi Aplikacji korzystamy z następujących kategorii odbiorców / przetwarzających:</p>
+  <ul>
+    <li><strong>Appwrite</strong> (hosting backendu, baza danych, uwierzytelnianie anonimowe, opcjonalne funkcje serwera) — dane przechowywane i przetwarzane zgodnie z konfiguracją projektu i dokumentacją Appwrite.</li>
+    <li><strong>RevenueCat</strong> — obsługa i weryfikacja zakupów cyfrowych (status Pro) — identyfikatory użytkownika związane z zakupami, wymagane przez integrację SDK.</li>
+    <li><strong>Google (Google Play i powiązane usługi)</strong> — realizacja płatności, dystrybucja Aplikacji, możliwe usługi systemu Android do powiadomień i alarmów.</li>
+  </ul>
+  <p>Polityka prywatności każdego dostawcy reguluje sposób przetwarzania przez niego danych.</p>
+
+  <h2>6. Przechowywanie</h2>
+  <ul>
+    <li>Przechowujemy dane w backendzie <strong>tak długo, jak używasz Aplikacji</strong> i jest to konieczne do świadczenia usługi, chyba że dłuższe okresy wynikają z prawa (np. księgowość — zwykle nieistotne dla zawartości drzemek).</li>
+    <li>Po usunięciu konta lub na żądanie <strong>usuniemy lub zanonimizujemy</strong> dane w zakresie technicznie możliwym i wymaganym przez prawo — skontaktuj się z Administratorem, aby uzyskać szczegóły.</li>
+  </ul>
+
+  <h2>7. Twoje prawa</h2>
+  <p>Możesz mieć prawo do:</p>
+  <ul>
+    <li><strong>dostępu</strong> do swoich danych,</li>
+    <li><strong>sprostowania</strong> niedokładnych danych,</li>
+    <li><strong>usunięcia</strong> danych („prawo do bycia zapomnianym") — w granicach wyznaczonych przez prawo,</li>
+    <li><strong>ograniczenia</strong> przetwarzania,</li>
+    <li><strong>przenoszalności danych</strong> (gdzie ma zastosowanie),</li>
+    <li><strong>sprzeciwu</strong> tam, gdzie pozwala prawo,</li>
+    <li><strong>złożenia skargi</strong> do organu nadzorczego (np. w Polsce: Prezesa Urzędu Ochrony Danych Osobowych).</li>
+  </ul>
+  <p>Aby skorzystać ze swoich praw, użyj danych kontaktowych na liście NapStack w Google Play.</p>
+
+  <h2>8. Transfery poza EOG</h2>
+  <p>Dostawcy, tacy jak Appwrite lub RevenueCat, mogą przetwarzać dane na serwerach poza Europejskim Obszarem Gospodarczym. W takim przypadku mają zastosowanie mechanizmy wynikające z RODO (np. standardowe klauzule umowne).</p>
+
+  <h2>9. Powiadomienia i alarmy</h2>
+  <p>Aplikacja może wyświetlać <strong>powiadomienia lokalne</strong> i korzystać z API alarmów Android, aby przypomnieć Ci, kiedy drzemka się kończy. Nie są to wiadomości marketingowe, chyba że osobno wyrażysz zgodę na marketing w przyszłości (co zostałoby opisane osobno).</p>
+
+  <h2>10. Zmiany</h2>
+  <p>Możemy aktualizować tę politykę. Poinformujemy Cię o istotnych zmianach w rozsądny sposób (np. powiadomienie w aplikacji lub zaktualizowana data „ostatniej aktualizacji"). Dalsze korzystanie po aktualizacji może oznaczać, że akceptujesz zmiany, chyba że prawo wymaga innej formy.</p>
+
+  <footer>
+    <p>Przygotowano dla aplikacji NapStack. Uzupełnij dane kontaktowe Administratora, aby były zgodne z listą w Google Play.</p>
+  </footer>
+</body>
+</html>

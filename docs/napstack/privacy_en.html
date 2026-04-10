@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — NapStack</title>
+  <style>
+    :root {
+      --bg: #0d1120;
+      --card: #111827;
+      --text: #e8eef8;
+      --muted: #8899bb;
+      --accent: #60c5ff;
+      --border: #1e2f47;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 1rem;
+      padding: 1.5rem;
+      max-width: 44rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 0;
+      color: var(--accent);
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 1.75rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.35rem;
+    }
+    p, li { color: var(--muted); }
+    strong { color: var(--text); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--card); color: var(--text); }
+    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+    footer {
+      margin-top: 2.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    a { color: var(--accent); }
+    .lang-switcher {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+    .lang-switcher a {
+      margin: 0 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .lang-switcher a.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-switcher">
+    <a href="privacy_pl.html">Polski</a>
+    <a href="privacy_en.html" class="active">English</a>
+  </div>
+
+  <h1>NapStack Privacy Policy</h1>
+  <p class="meta"><strong>Last updated:</strong> 9 April 2026</p>
+
+  <h2>1. Introduction</h2>
+  <p>This privacy policy explains how the <strong>NapStack</strong> mobile app (the "App") processes data in connection with nap scheduling, alarms, and optional cloud sync. The App is made available by the developer listed as the publisher on <strong>Google Play</strong> (the "<strong>Controller</strong>" or "<strong>we</strong>" / "<strong>us</strong>").</p>
+  <p>This document is for information only. If it conflicts with applicable law, the law prevails.</p>
+
+  <h2>2. Data controller</h2>
+  <p>The controller of personal data within the meaning of the GDPR is the entity indicated as the NapStack app developer in <strong>Google Play Console</strong>. You can contact the Controller using the details on the app listing in the store (support email / developer page).</p>
+
+  <h2>3. Data we may process</h2>
+  <p>Depending on which features you use, we may process in particular:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Examples</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Backend account identifier</strong></td>
+        <td>Unique user ID assigned on anonymous sign-in with Appwrite</td>
+        <td>user ID</td>
+      </tr>
+      <tr>
+        <td><strong>Nap and schedule data</strong></td>
+        <td>Information about planned and completed naps sent for sync</td>
+        <td>nap type, start and end time, completion status, planned duration</td>
+      </tr>
+      <tr>
+        <td><strong>Account preferences</strong></td>
+        <td>Auxiliary data linked to your account in the App</td>
+        <td>e.g. Pro status (cache), purchase-system identifier</td>
+      </tr>
+      <tr>
+        <td><strong>Technical and operational data</strong></td>
+        <td>Information needed to run the App</td>
+        <td>e.g. network requests, diagnostic messages at service providers (per their policies)</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>We do <strong>not</strong> intentionally collect traditional contact data in the App (e.g. full name, email) unless you use an optional account-linking feature (if offered in the future, it will be described separately).</p>
+
+  <h2>4. Purposes and legal bases (GDPR)</h2>
+  <p>We process data for the following purposes:</p>
+  <ol>
+    <li><strong>Providing the service</strong> — running timers and alarms, saving history, and syncing across devices — <strong>Art. 6(1)(b) GDPR</strong> (contract / use of the service).</li>
+    <li><strong>Pro purchases</strong> — verifying entitlements, restoring purchases — <strong>Art. 6(1)(b) GDPR</strong>.</li>
+    <li><strong>Security and stability</strong> — abuse prevention, error diagnostics within a reasonable scope — <strong>Art. 6(1)(f) GDPR</strong> (legitimate interest) or <strong>(b)</strong>, depending on context.</li>
+  </ol>
+
+  <h2>5. Recipients and third-party services</h2>
+  <p>To operate the App, we use the following categories of recipients / processors:</p>
+  <ul>
+    <li><strong>Appwrite</strong> (backend hosting, database, anonymous authentication, optional server functions) — data stored and processed per project configuration and Appwrite documentation.</li>
+    <li><strong>RevenueCat</strong> — handling and verification of digital purchases (Pro status) — purchase-related user identifiers as required by the SDK integration.</li>
+    <li><strong>Google (Google Play and related services)</strong> — payment fulfilment, App distribution, and possibly Android system services for notifications and alarms.</li>
+  </ul>
+  <p>Each provider's privacy policy governs how they process data.</p>
+
+  <h2>6. Retention</h2>
+  <ul>
+    <li>We keep backend data <strong>for as long as you use the App</strong> and it is necessary to provide the service, unless longer periods apply by law (e.g. accounting — usually not relevant to nap content).</li>
+    <li>After account deletion or on request, we will <strong>delete or anonymise</strong> data to the extent technically feasible and required by law — contact the Controller for details.</li>
+  </ul>
+
+  <h2>7. Your rights</h2>
+  <p>You may have the right to:</p>
+  <ul>
+    <li><strong>access</strong> your data,</li>
+    <li><strong>rectify</strong> inaccurate data,</li>
+    <li><strong>erase</strong> data ("right to be forgotten") — within limits set by law,</li>
+    <li><strong>restrict</strong> processing,</li>
+    <li><strong>data portability</strong> (where applicable),</li>
+    <li><strong>object</strong> where the law allows,</li>
+    <li><strong>lodge a complaint</strong> with a supervisory authority (e.g. in Poland: the President of the Personal Data Protection Office).</li>
+  </ul>
+  <p>To exercise your rights, use the contact details on the NapStack listing on Google Play.</p>
+
+  <h2>8. Transfers outside the EEA</h2>
+  <p>Providers such as Appwrite or RevenueCat may process data on servers outside the European Economic Area. Where that happens, mechanisms under the GDPR apply (e.g. standard contractual clauses).</p>
+
+  <h2>9. Notifications and alarms</h2>
+  <p>The App may show <strong>local notifications</strong> and use Android alarm APIs to remind you when a nap ends. These are not marketing messages unless you separately opt in to marketing in the future (which would be described separately).</p>
+
+  <h2>10. Changes</h2>
+  <p>We may update this policy. We will inform you of material changes in a reasonable way (e.g. in-app notice or an updated "last updated" date). Continued use after an update may mean you accept the changes, unless the law requires a different form.</p>
+
+  <footer>
+    <p>Prepared for the NapStack app. Complete the Controller's contact details to match your Google Play listing.</p>
+  </footer>
+</body>
+</html>
