@@ -2,6 +2,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/appwrite/appwrite_constants.dart';
+import '../../core/security/secure_storage_service.dart';
 import '../timer/alarm_service.dart';
 import '../timer/nap_preset.dart';
 import '../nap_stack/nap_stack_item_model.dart';
@@ -15,9 +16,10 @@ import '../nap_stack/nap_stack_item_model.dart';
 /// ale potrzebujemy lokalnego userId do authenticated requesty Appwrite.
 ///
 /// Rozwiązanie:
-/// 1. BootReceiver (Kotlin) budzi FlutterEngine.
-/// 2. Dart readuje cached userId z SharedPreferences.
-/// 3. Tworzy anonimową sesję Appwrite (ten sam userId).
+/// 1. BootReceiver (Kotlin) budzi FlutterEngine i rejestruje pluginy.
+/// 2. Dart readuje cached userId z SecureStorage (jak AuthService); fallback
+///    SharedPreferences tylko dla migracji ze starego cache.
+/// 3. Tworzy anonimową sesję Appwrite.
 /// 4. Pobiera nap_stack z Appwrite.
 /// 5. Planuje alarmy dla niewykonanych elementów w przyszłości.
 ///
@@ -25,8 +27,10 @@ import '../nap_stack/nap_stack_item_model.dart';
 class BootRecoveryService {
   /// Punkt wejścia wywoływany z BootReceiver przez MethodChannel.
   static Future<void> recoverAlarms() async {
+    final secure = SecureStorageService();
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString(kPrefUserId);
+    final userId =
+        await secure.getUserId() ?? prefs.getString(kPrefUserId);
 
     if (userId == null) return; // Pierwsze uruchomienie — nic do przywrócenia
 
@@ -41,7 +45,7 @@ class BootRecoveryService {
       final account = Account(client);
       // Utwórz nową anonimową sesję; dane są przypisane do userId w Appwrite
       final session = await account.createAnonymousSession();
-      await prefs.setString(kPrefUserId, session.userId);
+      await secure.setUserId(session.userId);
     } catch (_) {
       // Sieć niedostępna przy restarcie — pomiń sync, alarmy zostaną przywrócone
       // przy następnym otwarciu apki przez normalny authInit

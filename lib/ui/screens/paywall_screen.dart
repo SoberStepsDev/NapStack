@@ -115,7 +115,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                         const SizedBox(height: 20),
                         _PurchaseButton(proState: proState, ref: ref),
                         const SizedBox(height: 12),
-                        _RestoreButton(ref: ref),
+                        _RestoreButton(proState: proState, ref: ref),
                         const SizedBox(height: 20),
                         _PaywallLegalLinks(),
                         const SizedBox(height: 16),
@@ -444,14 +444,54 @@ class _PurchaseButton extends StatelessWidget {
 }
 
 class _RestoreButton extends StatelessWidget {
-  const _RestoreButton({required this.ref});
+  const _RestoreButton({required this.proState, required this.ref});
+
+  final AsyncValue<bool> proState;
   final WidgetRef ref;
+
+  Future<void> _onRestore(BuildContext context) async {
+    await ref.read(proActionsProvider.notifier).restore();
+    if (!context.mounted) return;
+
+    final result = ref.read(proActionsProvider);
+    result.when(
+      data: (isPro) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isPro
+                  ? 'Status Pro został przywrócony.'
+                  : 'Brak aktywnych zakupów do przywrócenia.',
+              style: GoogleFonts.dmSans(),
+            ),
+          ),
+        );
+      },
+      error: (_, __) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Nie udało się przywrócić zakupów. Sprawdź połączenie i spróbuj ponownie.',
+              style: GoogleFonts.dmSans(),
+            ),
+          ),
+        );
+      },
+      loading: () {},
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () => ref.read(proActionsProvider.notifier).restore(),
-      child: const Text('Przywróć zakupy'),
+      onPressed: proState.isLoading ? null : () => _onRestore(context),
+      child: Text(
+        'Przywróć zakupy',
+        style: GoogleFonts.dmSans(
+          fontWeight: FontWeight.w600,
+          color: AppColors.kAccent,
+        ),
+      ),
     );
   }
 }

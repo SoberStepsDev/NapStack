@@ -31,11 +31,17 @@ class ProActionsNotifier extends Notifier<AsyncValue<bool>> {
   Future<void> purchase() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _service.purchasePro());
+    if (!state.hasError) {
+      ref.invalidate(proStatusProvider);
+    }
   }
 
   Future<void> restore() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => _service.restorePurchases());
+    if (!state.hasError) {
+      ref.invalidate(proStatusProvider);
+    }
   }
 }
 

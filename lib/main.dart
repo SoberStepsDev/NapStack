@@ -13,6 +13,9 @@ import 'features/timer/alarm_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Boot recovery: przed pierwszym await (jak w boot_recovery_entry / BootReceiver).
+  registerBootRecoveryChannel();
+
   // Wymuszaj tryb portretowy
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -26,9 +29,6 @@ Future<void> main() async {
     systemNavigationBarColor: Color(0xFF111827),
     systemNavigationBarIconBrightness: Brightness.light,
   ));
-
-  // Boot Recovery — MethodChannel musi być zarejestrowany przed runApp
-  registerBootRecoveryChannel();
 
   // Alarm Service — timezone + FLN
   await AlarmService.init();
