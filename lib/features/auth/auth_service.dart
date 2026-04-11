@@ -44,9 +44,12 @@ class AuthService {
       // Nowa sesja służy tylko do autoryzacji HTTP — NIE nadpisujemy cachedId.
       // Dane w Appwrite są przypisane do cachedId i pozostają dostępne.
       //
-      // Uwaga: Appwrite RLS oparty na auth.uid() będzie wskazywał na nowe konto.
-      // Dlatego user_id w rekordach jest przechowywany jawnie i używany w Query.equal.
-      // Dostęp do danych jest możliwy dopóki uprawnienia rekordu to allow(Role.any()).
+      // OGRANICZENIE: Appwrite RLS używa Role.user(cachedId) na rekordach.
+      // Nowa sesja anonimowa ma inny auth.uid() — Appwrite zwróci 403 przy
+      // próbie odczytu/zapisu rekordów starego użytkownika.
+      // Jedyne pełne rozwiązanie: upgrade do email/password przy zakupie Pro
+      // (account.updateEmail) — wtedy userId pozostaje stały między sesjami.
+      // W v1 (konta anonimowe) utrata sesji = utrata dostępu do danych.
       // Docelowo: upgrade do email/password przy zakupie Pro.
       try {
         await AppwriteErrorHandler.runWithRetry(
