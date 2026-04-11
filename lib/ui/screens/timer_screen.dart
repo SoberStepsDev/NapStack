@@ -21,7 +21,15 @@ class TimerScreen extends ConsumerStatefulWidget {
 class _TimerScreenState extends ConsumerState<TimerScreen> {
   @override
   void dispose() {
-    ref.read(timerNotifierProvider.notifier).reset();
+    // stop() anuluje alarm systemowy i wyłącza Wakelock.
+    // reset() tego nie robi — alarm pozostałby zaplanowany po wyjściu z ekranu.
+    final notifier = ref.read(timerNotifierProvider.notifier);
+    final isRunning = ref.read(timerNotifierProvider).isRunning;
+    if (isRunning) {
+      notifier.stop();
+    } else {
+      notifier.reset();
+    }
     super.dispose();
   }
 
