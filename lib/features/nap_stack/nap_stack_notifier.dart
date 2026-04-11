@@ -61,7 +61,7 @@ class NapStackNotifier extends Notifier<NapStackState> {
       final preset = presetByType(napType);
       await AlarmService.scheduleWakeUp(
         alarmId: item.alarmId,
-        wakeAt: scheduledAt.add(Duration(seconds: preset.fallAsleepSeconds)),
+        wakeAt: scheduledAt.add(Duration(seconds: preset.totalSeconds)),
         label: '${preset.label} — czas wstawać!',
       );
     } on NapStackLimitException catch (e) {
@@ -96,7 +96,7 @@ class NapStackNotifier extends Notifier<NapStackState> {
     for (final item in items) {
       final preset = presetByType(item.napType);
       final wakeAt =
-          item.scheduledAt.add(Duration(seconds: preset.fallAsleepSeconds));
+          item.scheduledAt.add(Duration(seconds: preset.totalSeconds));
 
       if (wakeAt.isAfter(now)) {
         await AlarmService.scheduleWakeUp(

@@ -77,7 +77,7 @@ class BootRecoveryService {
         final item = NapStackItem.fromAppwrite(row.data);
         final preset = presetByType(item.napType);
         final wakeAt = item.scheduledAt
-            .add(Duration(seconds: preset.fallAsleepSeconds));
+            .add(Duration(seconds: preset.totalSeconds));
 
         if (wakeAt.isAfter(now)) {
           try {
