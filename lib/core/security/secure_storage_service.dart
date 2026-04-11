@@ -10,6 +10,14 @@ abstract final class SecureKeys {
   /// Flaga Pro z ostatniego sprawdzenia RC — bool jako string 'true'/'false'.
   /// Przechowywana tu (a nie w SharedPreferences) bo wpływa na dostęp do funkcji.
   static const proCached = 'pro_cached';
+
+  /// Email konta (po upgrade z anonimowego do email/password).
+  /// Przechowywany tu, by móc odtworzyć sesję email po wygaśnięciu.
+  static const accountEmail = 'account_email';
+
+  /// Hasło konta (po upgrade z anonimowego do email/password).
+  /// Szyfrowane przez Android Keystore / iOS Keychain — bezpieczne jak userId.
+  static const accountPassword = 'account_password';
 }
 
 /// Bezpieczny magazyn dla danych wrażliwych.
@@ -69,6 +77,26 @@ class SecureStorageService {
 
   Future<void> setProCached(bool isActive) =>
       write(SecureKeys.proCached, isActive.toString());
+
+  // ── Email/password credentials (po upgrade z konta anonimowego) ────────────
+
+  Future<String?> getAccountEmail() => read(SecureKeys.accountEmail);
+
+  Future<String?> getAccountPassword() => read(SecureKeys.accountPassword);
+
+  Future<void> setAccountCredentials({
+    required String email,
+    required String password,
+  }) async {
+    await write(SecureKeys.accountEmail, email);
+    await write(SecureKeys.accountPassword, password);
+  }
+
+  Future<bool> hasEmailCredentials() async {
+    final email = await getAccountEmail();
+    final password = await getAccountPassword();
+    return email != null && password != null;
+  }
 }
 
 final secureStorageProvider = Provider<SecureStorageService>((ref) {

@@ -17,9 +17,11 @@ import '../nap_stack/nap_stack_item_model.dart';
 ///
 /// Rozwiązanie:
 /// 1. BootReceiver (Kotlin) budzi FlutterEngine i rejestruje pluginy.
-/// 2. Dart readuje cached userId z SecureStorage (jak AuthService); fallback
-///    SharedPreferences tylko dla migracji ze starego cache.
-/// 3. Tworzy anonimową sesję Appwrite.
+/// 2. Dart readuje cached userId z SecureStorage; fallback SharedPreferences
+///    tylko dla migracji ze starego cache.
+/// 3. Odtwarza sesję Appwrite:
+///    a. Konto z emailem (Pro) → createEmailPasswordSession → TEN SAM userId, RLS działa.
+///    b. Konto anonimowe → createAnonymousSession (nowy userId, tylko HTTP auth).
 /// 4. Pobiera nap_stack z Appwrite.
 /// 5. Planuje alarmy dla niewykonanych elementów w przyszłości.
 ///
@@ -40,18 +42,40 @@ class BootRecoveryService {
         .setEndpoint(kAppwriteEndpoint)
         .setProject(kAppwriteProjectId);
 
-    // Próba odtworzenia sesji — w BootReceiver nie ma aktywnej sesji cookie.
-    // WAŻNE: createAnonymousSession() tworzy NOWE konto z nowym userId.
-    // NIE nadpisujemy secure.userId — zachowujemy oryginalny userId do query Appwrite.
+    final account = Account(client);
+    bool sessionRestored = false;
+
+    // Próba 1: odtworzenie sesji email/password (konto Pro).
+    // createEmailPasswordSession zachowuje oryginalny userId — RLS działa.
+    final email = await secure.getAccountEmail();
+    final password = await secure.getAccountPassword();
+
+    if (email != null && password != null) {
+      try {
+        await account.createEmailPasswordSession(
+          email: email,
+          password: password,
+        );
+        sessionRestored = true;
+      } catch (_) {
+        // Złe credentials lub brak sieci — fallback do anonimowej sesji
+      }
+    }
+
+    // Próba 2: anonimowa sesja (konto bez email).
+    // Tworzy NOWE konto z nowym userId — NIE nadpisujemy secure.userId.
     // Nowa sesja służy tylko do autoryzacji HTTP requestów w tym procesie.
-    try {
-      final account = Account(client);
-      await account.createAnonymousSession();
-      // Celowo NIE wywołujemy secure.setUserId() — userId pozostaje bez zmian.
-    } catch (_) {
-      // Sieć niedostępna przy restarcie — pomiń sync, alarmy zostaną przywrócone
-      // przy następnym otwarciu apki przez normalny authInit
-      return;
+    // Appwrite RLS zwróci 403 dla rekordów starego userId — to znane
+    // ograniczenie kont anonimowych bez email.
+    if (!sessionRestored) {
+      try {
+        await account.createAnonymousSession();
+        // Celowo NIE wywołujemy secure.setUserId() — zachowujemy oryginalny userId.
+      } catch (_) {
+        // Sieć niedostępna przy restarcie — pomiń sync, alarmy zostaną przywrócone
+        // przy następnym otwarciu apki przez normalny authInit
+        return;
+      }
     }
 
     final db = TablesDB(client);
