@@ -80,7 +80,16 @@ abstract final class AppwriteErrorHandler {
       try {
         return await operation();
       } on AppwriteException catch (e) {
-        throw _mapAppwriteException(e, resource);
+        final mapped = _mapAppwriteException(e, resource);
+        if (mapped is UnauthenticatedException) {
+          // Próba odtworzenia sesji — jeśli się uda, powtarzamy operację raz.
+          await SessionRecovery.recover();
+          if (attempt < maxRetries) {
+            attempt++;
+            continue;
+          }
+        }
+        throw mapped;
       } on SocketException catch (e) {
         throw OfflineException(originalError: e);
       } on TimeoutException catch (e) {
