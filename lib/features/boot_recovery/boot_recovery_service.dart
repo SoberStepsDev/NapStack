@@ -40,12 +40,14 @@ class BootRecoveryService {
         .setEndpoint(kAppwriteEndpoint)
         .setProject(kAppwriteProjectId);
 
-    // Próba odtworzenia sesji — w BootReceiver nie ma aktywnej sesji cookie
+    // Próba odtworzenia sesji — w BootReceiver nie ma aktywnej sesji cookie.
+    // WAŻNE: createAnonymousSession() tworzy NOWE konto z nowym userId.
+    // NIE nadpisujemy secure.userId — zachowujemy oryginalny userId do query Appwrite.
+    // Nowa sesja służy tylko do autoryzacji HTTP requestów w tym procesie.
     try {
       final account = Account(client);
-      // Utwórz nową anonimową sesję; dane są przypisane do userId w Appwrite
-      final session = await account.createAnonymousSession();
-      await secure.setUserId(session.userId);
+      await account.createAnonymousSession();
+      // Celowo NIE wywołujemy secure.setUserId() — userId pozostaje bez zmian.
     } catch (_) {
       // Sieć niedostępna przy restarcie — pomiń sync, alarmy zostaną przywrócone
       // przy następnym otwarciu apki przez normalny authInit
