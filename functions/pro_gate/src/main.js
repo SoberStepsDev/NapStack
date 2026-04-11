@@ -24,8 +24,6 @@
  *   - Funkcja jest "any" auth (wymaga zalogowanego użytkownika Appwrite).
  */
 
-import { Client, Users } from 'node-appwrite';
-
 const RC_ENTITLEMENT = process.env.PRO_ENTITLEMENT_ID ?? 'pro';
 const RC_SECRET_KEY  = process.env.RC_SECRET_KEY_ANDROID ?? '';
 const RC_PROJECT_ID  = process.env.RC_PROJECT_ID ?? '';
