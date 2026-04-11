@@ -44,7 +44,8 @@ class PurchaseService {
     try {
       final offerings = await Purchases.getOfferings();
       final package = offerings.current?.availablePackages
-          .firstWhere((p) => p.storeProduct.identifier == _kProductId);
+          .where((p) => p.storeProduct.identifier == _kProductId)
+          .firstOrNull;
 
       if (package == null) throw Exception('Pakiet Pro nie znaleziony.');
 
