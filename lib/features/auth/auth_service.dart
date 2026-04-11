@@ -39,13 +39,26 @@ class AuthService {
     final cachedId = await _storage.getUserId();
 
     if (cachedId != null) {
-      // Cache istnieje — sesja wygasła po restarcie / dłuższej nieaktywności.
-      // Utwórz nową anonimową sesję. WAŻNE: nowe konto anonimowe = nowy userId.
-      // Dane w Appwrite są przypisane do STAREGO userId — utrata danych.
+      // Cache istnieje — sesja wygasła. Tworzymy nową sesję anonimową (nowe konto),
+      // ale zachowujemy cachedId jako identyfikator użytkownika w tej apce.
+      // Nowa sesja służy tylko do autoryzacji HTTP — NIE nadpisujemy cachedId.
+      // Dane w Appwrite są przypisane do cachedId i pozostają dostępne.
       //
-      // Rozwiązanie docelowe (poza v1): upgrade konta do email/password
-      // przy pierwszym uruchomieniu Pro, by mieć stały, przywracanry userId.
-      return _createFreshSession();
+      // Uwaga: Appwrite RLS oparty na auth.uid() będzie wskazywał na nowe konto.
+      // Dlatego user_id w rekordach jest przechowywany jawnie i używany w Query.equal.
+      // Dostęp do danych jest możliwy dopóki uprawnienia rekordu to allow(Role.any()).
+      // Docelowo: upgrade do email/password przy zakupie Pro.
+      try {
+        await AppwriteErrorHandler.runWithRetry(
+          () => _account.createAnonymousSession(),
+          resource: 'anonymous_session',
+        );
+        // Celowo NIE aktualizujemy cachedId — zachowujemy oryginalny userId.
+        return cachedId;
+      } catch (_) {
+        // Brak sieci — zwróć cachedId, UI pokaże dane z lokalnego cache
+        return cachedId;
+      }
     }
 
     return _createFreshSession();
