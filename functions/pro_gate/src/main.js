@@ -56,20 +56,16 @@ async function fetchRCCustomerInfo(appUserId) {
 /**
  * Sprawdza czy entitlement jest aktywny w odpowiedzi RC v2.
  *
- * RC v2 zwraca listę entitlements w:
- *   data.subscriber.entitlements[]  →  { id, object, ..., expires_date }
- * Aktywne = expires_date jest null lub w przyszłości.
+ * RC v2 GET /customers/{id} zwraca:
+ *   customer.active_entitlements.items[]  →  [{ id, lookup_key, display_name, ... }]
+ * Sama obecność w active_entitlements oznacza aktywność — brak expires_date w tym endpoincie.
+ * Dla lifetime purchase (one-time) rekord jest w items dopóki zakup jest ważny.
+ *
+ * UWAGA: NIE używamy customer.subscriber.entitlements — to struktura z REST API v1.
  */
 function isEntitlementActive(customerData) {
-  const entitlements = customerData?.subscriber?.entitlements ?? [];
-  const now = Date.now();
-
-  return entitlements.some((e) => {
-    if (e.id !== RC_ENTITLEMENT) return false;
-    // null = lifetime (nie wygasa nigdy)
-    if (e.expires_date === null) return true;
-    return new Date(e.expires_date).getTime() > now;
-  });
+  const items = customerData?.active_entitlements?.items ?? [];
+  return items.some((e) => e.lookup_key === RC_ENTITLEMENT || e.id === RC_ENTITLEMENT);
 }
 
 export default async ({ req, res, log, error }) => {
