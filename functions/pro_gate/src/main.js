@@ -82,7 +82,11 @@ export default async ({ req, res, log, error }) => {
   }
 
   // ── Akcja (opcjonalna — logujemy dla auditu) ───────────────────────────────
-  const body   = req.body ? JSON.parse(req.body) : {};
+  // node-appwrite 15+ (Appwrite 1.5+): req.body jest już sparsowanym obiektem
+  // gdy Content-Type: application/json. JSON.parse na obiekcie rzuci błąd.
+  const body = (typeof req.body === 'object' && req.body !== null)
+    ? req.body
+    : (req.body ? JSON.parse(req.body) : {});
   const action = body.action ?? 'unknown';
 
   log(`[pro_gate] userId=${userId} action=${action}`);
