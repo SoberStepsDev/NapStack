@@ -34,7 +34,11 @@ jobs:
             exit 1
           fi
           printf '%s\n' "$ANDROID_KEY_PROPERTIES" > android/key.properties
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/napstack-release.jks
+          echo "DEBUG: KEYSTORE_BASE64 length: ${#ANDROID_KEYSTORE_BASE64}"
+          echo "$ANDROID_KEYSTORE_BASE64" | openssl enc -d -base64 -out android/app/napstack-upload.jks 2>&1
+          echo "DEBUG: Decoded file:"
+          ls -lh android/app/napstack-upload.jks
+          file android/app/napstack-upload.jks
 
       - name: Dart defines (optional)
         env:
