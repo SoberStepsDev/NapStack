@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delete Account — NapStack</title>
+  <style>
+    :root {
+      --bg: #0d1120;
+      --card: #111827;
+      --text: #e8eef8;
+      --muted: #8899bb;
+      --accent: #60c5ff;
+      --border: #1e2f47;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 1rem;
+      padding: 1.5rem;
+      max-width: 44rem;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-top: 0; color: var(--accent); }
+    h2 { font-size: 1.1rem; margin-top: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+    p, li { color: var(--text); }
+    a { color: var(--accent); }
+    .lang-switch {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+    .lang-btn {
+      padding: 0.3rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .lang-btn.active {
+      background: var(--accent);
+      color: #0d1120;
+      border-color: var(--accent);
+    }
+    .lang-section { display: none; }
+    .lang-section.visible { display: block; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .step { display: flex; gap: 1rem; align-items: flex-start; margin-bottom: 1rem; }
+    .step-num {
+      background: var(--accent);
+      color: #0d1120;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 1.75rem;
+      height: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+    .step-text { padding-top: 0.15rem; }
+    .email-btn {
+      display: inline-block;
+      margin-top: 1.25rem;
+      background: var(--accent);
+      color: #0d1120;
+      font-weight: 700;
+      padding: 0.65rem 1.4rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .email-btn:hover { opacity: 0.88; }
+    .warning {
+      background: #1a0f0f;
+      border: 1px solid #4a1a1a;
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      margin-top: 1.25rem;
+      color: #ffaaaa;
+      font-size: 0.92rem;
+    }
+    .divider {
+      border: none;
+      border-top: 2px solid var(--border);
+      margin: 3rem 0 2rem;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.93rem; }
+    th, td { border: 1px solid var(--border); padding: 0.55rem 0.75rem; text-align: left; }
+    th { background: var(--card); color: var(--muted); font-weight: 600; }
+    footer { margin-top: 2.5rem; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--border); padding-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('en')">English</button>
+    <button class="lang-btn" onclick="setLang('pl')">Polski</button>
+  </div>
+
+  <!-- ===== ENGLISH ===== -->
+  <div id="lang-en" class="lang-section visible">
+
+    <h1>Delete Account &amp; Data — NapStack</h1>
+    <p>You can request deletion of your NapStack account and all associated data at any time. Follow the steps below.</p>
+
+    <h2>How to request deletion</h2>
+    <div class="card">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Send an email to our support address with the subject line <strong>NapStack — Delete my account</strong>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Include your <strong>user ID</strong> (found in the app under Settings → Account) so we can locate your data.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">We will confirm receipt within <strong>3 business days</strong> and complete the deletion within <strong>30 days</strong>.</div>
+      </div>
+      <a class="email-btn" href="mailto:sobersteps@pm.me?subject=NapStack%20%E2%80%94%20Delete%20my%20account">Send deletion request</a>
+    </div>
+
+    <h2>What gets deleted</h2>
+    <table>
+      <tr><th>Data type</th><th>Action</th><th>Retention after request</th></tr>
+      <tr><td>Account identifier (user ID)</td><td>Deleted</td><td>Up to 30 days</td></tr>
+      <tr><td>Nap &amp; schedule data (cloud sync)</td><td>Deleted</td><td>Up to 30 days</td></tr>
+      <tr><td>Account credentials (email/password)</td><td>Deleted</td><td>Up to 30 days</td></tr>
+      <tr><td>Purchase records (RevenueCat)</td><td>Anonymised / per RevenueCat policy</td><td>Per RevenueCat retention policy</td></tr>
+      <tr><td>Payment records (Google Play)</td><td>Not held by us — governed by Google</td><td>Per Google policy</td></tr>
+    </table>
+
+    <div class="warning">
+      <strong>Note:</strong> Deletion is permanent and cannot be undone. Local data stored only on your device is not affected — you can clear it by uninstalling the app.
+    </div>
+
+    <h2>Data stored only on your device</h2>
+    <p>NapStack works offline. Nap history and settings stored locally are not accessible to us. To remove them, simply uninstall the app.</p>
+
+    <h2>Questions</h2>
+    <p>If you have questions about your data or rights under GDPR, contact us at <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a> or see our <a href="privacy_pl.html">Privacy Policy</a>.</p>
+
+    <footer>NapStack · Last updated: April 2026</footer>
+  </div>
+
+  <!-- ===== POLISH ===== -->
+  <div id="lang-pl" class="lang-section">
+
+    <h1>Usunięcie konta i danych — NapStack</h1>
+    <p>W każdej chwili możesz zażądać usunięcia swojego konta NapStack oraz wszystkich powiązanych danych. Postępuj zgodnie z poniższymi krokami.</p>
+
+    <h2>Jak złożyć wniosek o usunięcie</h2>
+    <div class="card">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">Wyślij e-mail na nasz adres wsparcia z tematem <strong>NapStack — Usuń moje konto</strong>.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">Podaj swój <strong>identyfikator użytkownika</strong> (dostępny w aplikacji w Ustawieniach → Konto), abyśmy mogli zlokalizować Twoje dane.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">Potwierdzimy otrzymanie wniosku w ciągu <strong>3 dni roboczych</strong>, a usunięcie danych zakończymy w ciągu <strong>30 dni</strong>.</div>
+      </div>
+      <a class="email-btn" href="mailto:sobersteps@pm.me?subject=NapStack%20%E2%80%94%20Usu%C5%84%20moje%20konto">Wyślij wniosek o usunięcie</a>
+    </div>
+
+    <h2>Co zostaje usunięte</h2>
+    <table>
+      <tr><th>Typ danych</th><th>Działanie</th><th>Retencja po wniosku</th></tr>
+      <tr><td>Identyfikator konta (user ID)</td><td>Usunięty</td><td>Do 30 dni</td></tr>
+      <tr><td>Dane drzemek i harmonogramów (sync)</td><td>Usunięte</td><td>Do 30 dni</td></tr>
+      <tr><td>Dane logowania (email/hasło)</td><td>Usunięte</td><td>Do 30 dni</td></tr>
+      <tr><td>Zapisy zakupów (RevenueCat)</td><td>Anonimizacja / zgodnie z polityką RevenueCat</td><td>Zgodnie z polityką RetentionCat</td></tr>
+      <tr><td>Zapisy płatności (Google Play)</td><td>Nie są przechowywane przez nas — zarządza Google</td><td>Zgodnie z polityką Google</td></tr>
+    </table>
+
+    <div class="warning">
+      <strong>Uwaga:</strong> Usunięcie jest trwałe i nie można go cofnąć. Dane przechowywane wyłącznie na Twoim urządzeniu nie są objęte tym procesem — możesz je usunąć, odinstalowując aplikację.
+    </div>
+
+    <h2>Dane przechowywane tylko na urządzeniu</h2>
+    <p>NapStack działa offline. Historia drzemek i ustawienia zapisane lokalnie nie są dla nas dostępne. Aby je usunąć, odinstaluj aplikację.</p>
+
+    <h2>Pytania</h2>
+    <p>Jeśli masz pytania dotyczące swoich danych lub praw wynikających z RODO, skontaktuj się z nami pod adresem <a href="mailto:sobersteps@pm.me">sobersteps@pm.me</a> lub zapoznaj się z naszą <a href="privacy_pl.html">Polityką prywatności</a>.</p>
+
+    <footer>NapStack · Ostatnia aktualizacja: kwiecień 2026</footer>
+  </div>
+
+  <script>
+    function setLang(lang) {
+      document.querySelectorAll('.lang-section').forEach(el => el.classList.remove('visible'));
+      document.querySelectorAll('.lang-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('lang-' + lang).classList.add('visible');
+      event.target.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
