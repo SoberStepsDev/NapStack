@@ -1,0 +1,1 @@
+Wykonuj wszystkie zadania z jak najmniejszym uzzyciem tokenówi APIs
