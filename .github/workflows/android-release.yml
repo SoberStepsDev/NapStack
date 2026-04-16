@@ -9,6 +9,9 @@ name: Android release bundle
 on:
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   bundle:
     runs-on: ubuntu-latest
