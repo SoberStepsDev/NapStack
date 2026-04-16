@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NapStack — Usuwanie danych konta</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #070B16;
+      color: #E8EAF0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .card {
+      background: #0F1623;
+      border: 1px solid #1E2A40;
+      border-radius: 16px;
+      max-width: 560px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+    }
+
+    .logo {
+      font-size: 2rem;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: #6B7A99;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4A90D9;
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: #B0BAD0;
+      margin-bottom: 1.5rem;
+    }
+
+    .data-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .data-list li {
+      font-size: 0.9rem;
+      color: #B0BAD0;
+      padding: 0.4rem 0;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+
+    .data-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #4A90D9;
+    }
+
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .steps li {
+      counter-increment: step;
+      font-size: 0.9rem;
+      color: #B0BAD0;
+      padding: 0.5rem 0 0.5rem 2rem;
+      position: relative;
+      border-bottom: 1px solid #1E2A40;
+    }
+
+    .steps li:last-child { border-bottom: none; }
+
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 1.35rem;
+      height: 1.35rem;
+      background: #1A2540;
+      border: 1px solid #4A90D9;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #4A90D9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.35rem;
+    }
+
+    .email-btn {
+      display: inline-block;
+      background: #4A90D9;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      margin-top: 0.5rem;
+      transition: background 0.2s;
+    }
+
+    .email-btn:hover { background: #3A7BC8; }
+
+    .notice {
+      background: #0A1020;
+      border: 1px solid #1E2A40;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      color: #6B7A99;
+      margin-top: 1.5rem;
+    }
+
+    footer {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #3A4A66;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">🌙</div>
+    <h1>Usuwanie danych konta</h1>
+    <p class="subtitle">NapStack — zarządzanie drzemkami</p>
+
+    <div class="section-title">Jakie dane przechowujemy</div>
+    <ul class="data-list">
+      <li>Adres e-mail i dane konta (jeśli zarejestrowałeś/aś się)</li>
+      <li>Historia sesji drzemek (daty, czas trwania)</li>
+      <li>Preferencje aplikacji (wybrany dzwonek, ustawienia)</li>
+      <li>Status subskrypcji Pro (zarządzany przez RevenueCat)</li>
+    </ul>
+
+    <div class="section-title">Jak usunąć konto przez aplikację</div>
+    <ol class="steps">
+      <li>Otwórz NapStack na urządzeniu</li>
+      <li>Przejdź do <strong>Ustawienia → Konto</strong></li>
+      <li>Wybierz <strong>Usuń konto</strong> i potwierdź</li>
+      <li>Wszystkie dane zostaną trwale usunięte w ciągu 30 dni</li>
+    </ol>
+
+    <div class="section-title">Usunięcie przez e-mail</div>
+    <p>Jeśli nie możesz uzyskać dostępu do aplikacji, wyślij prośbę o usunięcie danych na adres:</p>
+    <a class="email-btn" href="mailto:privacy@napstack.app?subject=Prośba%20o%20usunięcie%20danych%20konta">
+      privacy@napstack.app
+    </a>
+
+    <div class="notice">
+      Po usunięciu konta trwale kasujemy: dane konta, historię drzemek i preferencje. Anonimowe dane statystyczne (bez powiązania z Twoją tożsamością) mogą pozostać w zagregowanych raportach. Odpowiadamy w ciągu 5 dni roboczych.
+    </div>
+  </div>
+
+  <footer>© 2026 NapStack · <a href="mailto:privacy@napstack.app" style="color:#3A4A66">Kontakt</a></footer>
+</body>
+</html>
