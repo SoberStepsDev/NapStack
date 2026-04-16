@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NapStack — Google Play Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f13;
+    color: #e2e2e8;
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+  }
+
+  .container { max-width: 760px; margin: 0 auto; }
+
+  header {
+    margin-bottom: 36px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #2a2a35;
+  }
+
+  .app-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, #6c63ff, #a78bfa);
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; color: #fff; }
+  .subtitle { font-size: 13px; color: #6b7280; margin-top: 4px; }
+
+  .progress-bar-wrap {
+    margin-top: 20px;
+    background: #1e1e28;
+    border-radius: 99px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6c63ff, #a78bfa);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .section {
+    margin-bottom: 28px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #9ca3af;
+  }
+
+  .section-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 600;
+  }
+
+  .badge-done { background: #14532d; color: #4ade80; }
+  .badge-partial { background: #451a03; color: #fb923c; }
+  .badge-todo { background: #1e1b4b; color: #818cf8; }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    background: #16161f;
+    border: 1px solid #22222e;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+
+  .item:hover { background: #1c1c28; border-color: #2e2e3e; }
+
+  .item.checked {
+    background: #111820;
+    border-color: #1a3a2a;
+  }
+
+  .item.checked .item-label { color: #6b7280; text-decoration: line-through; text-decoration-color: #374151; }
+  .item.checked .item-note { color: #374151; }
+
+  .checkbox {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    border: 2px solid #374151;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .item.checked .checkbox {
+    background: #16a34a;
+    border-color: #16a34a;
+  }
+
+  .checkmark {
+    display: none;
+    width: 11px; height: 11px;
+  }
+
+  .item.checked .checkmark { display: block; }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+
+  .dot-green { background: #22c55e; box-shadow: 0 0 6px #22c55e66; }
+  .dot-orange { background: #f97316; box-shadow: 0 0 6px #f9731666; }
+  .dot-red { background: #ef4444; box-shadow: 0 0 6px #ef444466; }
+  .dot-gray { background: #4b5563; }
+
+  .item-content { flex: 1; min-width: 0; }
+  .item-label { font-size: 14px; color: #e2e2e8; line-height: 1.4; }
+  .item-note {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  .tag-done { background: #14532d44; color: #4ade80; border: 1px solid #14532d; }
+  .tag-auto { background: #1e3a5f44; color: #60a5fa; border: 1px solid #1e3a5f; }
+  .tag-manual { background: #3b1a0044; color: #fb923c; border: 1px solid #3b1a00; }
+  .tag-blocker { background: #4a000044; color: #f87171; border: 1px solid #4a0000; }
+
+  .divider { height: 1px; background: #1e1e28; margin: 24px 0; }
+
+  .footer {
+    text-align: center;
+    font-size: 12px;
+    color: #374151;
+    margin-top: 40px;
+  }
+
+  .reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 24px;
+    padding: 8px 16px;
+    background: #1e1e28;
+    border: 1px solid #2e2e3e;
+    border-radius: 8px;
+    color: #6b7280;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .reset-btn:hover { background: #25252f; color: #9ca3af; }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 18px; }
+    .item { padding: 10px 12px; }
+    .item-label { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="app-icon">💤</div>
+    <h1>NapStack — Google Play Checklist</h1>
+    <div class="subtitle">Analiza repozytorium z dnia 2026-04-15 · com.patrykdev.napstack</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <div class="progress-label">
+      <span id="progressText">0 / 0 ukończonych</span>
+      <span id="progressPct">0%</span>
+    </div>
+  </header>
+
+  <!-- ───── ANDROID CONFIG ───── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🤖 Konfiguracja Android</span>
+      <span class="section-badge badge-done" id="badge-android">✓</span>
+    </div>
+
+    <div class="item checked" data-group="android" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Klucz podpisywania <code>napstack-upload.jks</code></div>
+        <div class="item-note">Plik istnieje: <code>android/app/napstack-upload.jks</code> (2.8 KB) · <code>android/key.properties</code> wypełniony</div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="android" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Dźwięki alarmu w <code>assets/sounds/</code></div>
+        <div class="item-note">gentle_rise.mp3/.ogg, mixkit_bell_notification.mp3/.ogg, mixkit_happy_bells_notification.mp3/.ogg, napstack_*.ogg</div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="android" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Plik OGG w <code>android/.../res/raw/</code></div>
+        <div class="item-note">gentle_rise.ogg + 3 inne pliki .ogg w <code>android/app/src/main/res/raw/</code></div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="android" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Konfiguracja signingConfig w <code>build.gradle.kts</code></div>
+        <div class="item-note">Blok <code>release</code> czyta z <code>key.properties</code> · fallback na debug jeśli brak pliku</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="android" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> GitHub Secrets — <code>ANDROID_KEY_PROPERTIES</code> i <code>ANDROID_KEYSTORE_BASE64</code></div>
+        <div class="item-note">Workflow CI <code>.github/workflows/android-release.yml</code> istnieje · sekrety muszą być dodane w ustawieniach repo GitHub</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── APPWRITE ───── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">☁️ Appwrite</span>
+      <span class="section-badge badge-partial" id="badge-appwrite">⚠</span>
+    </div>
+
+    <div class="item checked" data-group="appwrite" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Project ID skonfigurowany w <code>dart_defines.local.json</code></div>
+        <div class="item-note">APPWRITE_PROJECT_ID: <code>69d7218d001dd20138f6</code> · endpoint: <code>https://fra.cloud.appwrite.io/v1</code></div>
+      </div>
+    </div>
+
+    <div class="item" data-group="appwrite" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-red"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-blocker">WERYFIKACJA</span> Inicjalizacja schematu bazy danych Appwrite</div>
+        <div class="item-note">Skrypt <code>tool/provision_appwrite.py</code> istnieje · nie można zweryfikować czy schema jest już wgrana bez dostępu do Appwrite Cloud</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="appwrite" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-red"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-blocker">WERYFIKACJA</span> Wdrożenie funkcji <code>pro_gate</code> w Appwrite</div>
+        <div class="item-note">Kod funkcji gotowy w <code>functions/pro_gate/src/main.js</code> · wymaga deploy w panelu Appwrite + ustawienia ENV: <code>RC_SECRET_KEY_ANDROID</code>, <code>RC_PROJECT_ID</code>, <code>PRO_ENTITLEMENT_ID</code></div>
+      </div>
+    </div>
+
+    <div class="item" data-group="appwrite" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> Dodanie platformy Android w Appwrite (package name)</div>
+        <div class="item-note">W panelu Appwrite → Settings → Platforms → Add Android · package: <code>com.patrykdev.napstack</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── REVENUECAT ───── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">💳 RevenueCat</span>
+      <span class="section-badge badge-partial" id="badge-rc">⚠</span>
+    </div>
+
+    <div class="item checked" data-group="rc" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Publiczny klucz SDK w <code>dart_defines.local.json</code></div>
+        <div class="item-note">RC_PUBLIC_KEY_ANDROID: <code>goog_qQwUjJrVBmjSrRgChpmSoVroQFp</code></div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="rc" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Integracja SDK w kodzie — entitlement <code>pro</code>, produkt <code>napstack_pro_lifetime</code></div>
+        <div class="item-note"><code>lib/features/pro/purchase_service.dart</code> · kEntitlement = 'pro' · kProductId = 'napstack_pro_lifetime'</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="rc" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-red"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-blocker">WERYFIKACJA</span> Produkt <code>napstack_pro_lifetime</code> w Google Play Console</div>
+        <div class="item-note">One-time purchase · musi być opublikowany przed testem zakupu</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="rc" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-red"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-blocker">WERYFIKACJA</span> RevenueCat: entitlement <code>pro</code>, oferta <code>current</code>, Service Account JSON</div>
+        <div class="item-note">Panel RevenueCat → projekt NapStack → Entitlements + Offerings + połączenie z Google Play</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── GOOGLE PLAY LISTING ───── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🛒 Google Play Store Listing</span>
+      <span class="section-badge badge-done" id="badge-listing">✓</span>
+    </div>
+
+    <div class="item checked" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">OPUBLIKOWANY</span> Polityka prywatności dostępna pod HTTPS</div>
+        <div class="item-note">URL: <code>https://soberstepsdev.github.io/NapStack/napstack/privacy_pl.html</code> · status 200 OK · dodany do <code>dart_defines.local.json</code></div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Plik HTML polityki prywatności</div>
+        <div class="item-note"><code>docs/google_play/hosting/privacy_pl.html</code> gotowy do publikacji · instrukcja hostingu w <code>hosting/README.md</code></div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Feature graphic 1024×500 px</div>
+        <div class="item-note"><code>docs/google_play/store_graphics/feature_graphic_1024x500.png</code></div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Zrzuty ekranu (2 pliki)</div>
+        <div class="item-note"><code>phone_screenshot_1080x1920.png</code> · <code>phone_screenshot_promo_9x16.png</code> — minimum wymagane przez Play spełnione</div>
+      </div>
+    </div>
+
+    <div class="item checked" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> Opisy sklepu PL/EN</div>
+        <div class="item-note"><code>docs/google_play/STORE_LISTING.md</code> — krótki, pełny, promocyjny opis gotowy</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> Formularz Data Safety w Google Play Console</div>
+        <div class="item-note">Wskazówki: <code>docs/google_play/DATA_SAFETY.md</code> · zbierane dane: user IDs, aktywność, finansowe, device IDs</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> Kwestionariusz Content Rating (IARC)</div>
+        <div class="item-note">Wskazówki: <code>docs/google_play/CONTENT_RATING.md</code></div>
+      </div>
+    </div>
+
+    <div class="item" data-group="listing" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> Deklaracje uprawnień specjalnych w Play Console</div>
+        <div class="item-note"><code>USE_FULL_SCREEN_INTENT</code> + <code>USE_EXACT_ALARM</code> · gotowe formułowania w <code>docs/google_play/SPECIAL_ACCESS_DECLARATIONS.md</code></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── CI/CD ───── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-title">🚀 CI/CD i wydanie</span>
+      <span class="section-badge badge-partial" id="badge-cicd">⚠</span>
+    </div>
+
+    <div class="item checked" data-group="cicd" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-green"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-done">WYKRYTO</span> GitHub Actions workflow <code>android-release.yml</code></div>
+        <div class="item-note">Buduje <code>.aab</code> na Ubuntu · <code>workflow_dispatch</code> (ręczny start) · obsługuje <code>DART_DEFINES_JSON</code></div>
+      </div>
+    </div>
+
+    <div class="item" data-group="cicd" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> GitHub Secret: <code>ANDROID_KEY_PROPERTIES</code></div>
+        <div class="item-note">Zawartość pliku <code>android/key.properties</code> → GitHub → Settings → Secrets</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="cicd" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> GitHub Secret: <code>ANDROID_KEYSTORE_BASE64</code></div>
+        <div class="item-note"><code>base64 -i napstack-upload.jks | pbcopy</code> → GitHub Secrets</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="cicd" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> GitHub Secret: <code>DART_DEFINES_JSON</code> (opcjonalne)</div>
+        <div class="item-note">Zawartość <code>dart_defines.local.json</code> (RC key + Appwrite endpoint/project + Privacy Policy URL)</div>
+      </div>
+    </div>
+
+    <div class="item" data-group="cicd" onclick="toggle(this)">
+      <div class="checkbox"><svg class="checkmark" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="status-dot dot-orange"></div>
+      <div class="item-content">
+        <div class="item-label"><span class="tag tag-manual">RĘCZNIE</span> Testy wewnętrzne w Google Play (Internal Testing)</div>
+        <div class="item-note">Wgraj .aab do Internal Testing · zweryfikuj alarmy na fizycznym urządzeniu (tryb Doze)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div style="text-align:center">
+    <button class="reset-btn" onclick="resetAll()">↺ Resetuj wszystkie zaznaczenia</button>
+  </div>
+
+  <div class="footer" style="margin-top:24px">
+    Wygenerowano automatycznie na podstawie analizy repozytorium NapStack · 2026-04-15
+  </div>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'napstack_checklist_v1';
+
+  function getState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  }
+
+  function saveState(state) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+  }
+
+  function toggle(el) {
+    const state = getState();
+    const idx = getIndex(el);
+    if (el.classList.contains('checked')) {
+      el.classList.remove('checked');
+      state[idx] = false;
+    } else {
+      el.classList.add('checked');
+      state[idx] = true;
+    }
+    saveState(state);
+    updateProgress();
+  }
+
+  function getIndex(el) {
+    return Array.from(document.querySelectorAll('.item')).indexOf(el);
+  }
+
+  function resetAll() {
+    document.querySelectorAll('.item').forEach(el => el.classList.remove('checked'));
+    applyDefaults();
+    saveState({});
+    updateProgress();
+  }
+
+  const DEFAULTS_CHECKED = [
+    // android: 0,1,2,3 checked; 4 unchecked
+    0,1,2,3,
+    // appwrite: 5 checked; 6,7,8 unchecked
+    5,
+    // rc: 9,10 checked; 11,12 unchecked
+    9,10,
+    // listing: 13,14,15,16,17,18 checked; 19,20,21 unchecked
+    13,14,15,16,17,18,
+    // cicd: 22 checked; 23,24,25,26 unchecked
+    22
+  ];
+
+  function applyDefaults() {
+    const items = document.querySelectorAll('.item');
+    items.forEach((el, i) => {
+      if (DEFAULTS_CHECKED.includes(i)) el.classList.add('checked');
+      else el.classList.remove('checked');
+    });
+  }
+
+  function updateProgress() {
+    const items = document.querySelectorAll('.item');
+    const total = items.length;
+    const done = document.querySelectorAll('.item.checked').length;
+    const pct = Math.round((done / total) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${done} / ${total} ukończonych`;
+    document.getElementById('progressPct').textContent = pct + '%';
+  }
+
+  // Init
+  (function init() {
+    const state = getState();
+    const items = document.querySelectorAll('.item');
+
+    if (Object.keys(state).length === 0) {
+      applyDefaults();
+    } else {
+      items.forEach((el, i) => {
+        if (state[i] === true) el.classList.add('checked');
+        else if (state[i] === false) el.classList.remove('checked');
+        else if (DEFAULTS_CHECKED.includes(i)) el.classList.add('checked');
+      });
+    }
+
+    updateProgress();
+  })();
+</script>
+</body>
+</html>
