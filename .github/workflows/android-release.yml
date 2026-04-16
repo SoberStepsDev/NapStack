@@ -34,7 +34,8 @@ jobs:
             exit 1
           fi
           printf '%s\n' "$ANDROID_KEY_PROPERTIES" > android/key.properties
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/napstack-upload.jks
+          echo "$ANDROID_KEYSTORE_BASE64" | openssl enc -d -base64 -out android/app/napstack-upload.jks
+          ls -lh android/app/napstack-upload.jks
 
       - name: Dart defines (optional)
         env:
