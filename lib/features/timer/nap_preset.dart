@@ -74,3 +74,36 @@ const kPresets = [
 
 NapPreset presetByType(NapType type) =>
     kPresets.firstWhere((p) => p.type == type);
+
+/// Dostępne dzwonki alarmowe.
+enum RingtoneType {
+  minimalPing,
+  morningBirds,
+  peacefulChime;
+
+  static RingtoneType get defaultRingtone => RingtoneType.minimalPing;
+
+  String get resourceId => switch (this) {
+        RingtoneType.minimalPing => 'napstack_minimal_ping',
+        RingtoneType.morningBirds => 'napstack_morning_birds',
+        RingtoneType.peacefulChime => 'napstack_peaceful_chime',
+      };
+
+  String get label => switch (this) {
+        RingtoneType.minimalPing => 'Minimal Ping',
+        RingtoneType.morningBirds => 'Morning Birds',
+        RingtoneType.peacefulChime => 'Peaceful Chime',
+      };
+
+  String get description => switch (this) {
+        RingtoneType.minimalPing => 'Delikatny, minimalistyczny dźwięk',
+        RingtoneType.morningBirds => 'Ptaki o poranku — spokojne przebudzenie',
+        RingtoneType.peacefulChime => 'Spokojny dzwonek — łagodne wyjście ze snu',
+      };
+
+  static RingtoneType fromResourceId(String id) =>
+      RingtoneType.values.firstWhere(
+        (r) => r.resourceId == id,
+        orElse: () => defaultRingtone,
+      );
+}

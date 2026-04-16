@@ -3,6 +3,8 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 
+import 'nap_preset.dart';
+
 /// Jedyna klasa odpowiedzialna za planowanie alarmów systemowych.
 ///
 /// Używa flutter_local_notifications z AndroidScheduleMode.exactAllowWhileIdle
@@ -15,6 +17,9 @@ class AlarmService {
 
   static final _fln = FlutterLocalNotificationsPlugin();
   static bool _initialized = false;
+  static RingtoneType _ringtone = RingtoneType.defaultRingtone;
+
+  static void setRingtone(RingtoneType ringtone) => _ringtone = ringtone;
 
   /// Inicjalizacja — wywoływana raz w main() po initTimezone().
   ///
@@ -115,7 +120,7 @@ class AlarmService {
         importance: Importance.max,
         priority: Priority.high,
         fullScreenIntent: true,
-        sound: const RawResourceAndroidNotificationSound('gentle_rise'),
+        sound: RawResourceAndroidNotificationSound(_ringtone.resourceId),
         playSound: true,
         enableVibration: true,
         category: AndroidNotificationCategory.alarm,

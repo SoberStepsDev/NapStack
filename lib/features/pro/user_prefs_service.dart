@@ -7,6 +7,7 @@ import '../../core/appwrite/appwrite_error_handler.dart';
 import '../../core/security/data_validator.dart';
 import '../../core/security/permissions_helper.dart';
 import '../auth/auth_provider.dart';
+import '../timer/nap_preset.dart';
 
 /// Preferencje użytkownika w Appwrite — jeden rekord per konto.
 ///
@@ -80,6 +81,18 @@ class UserPrefsService {
         tableId: kTableUserPrefs,
         rowId: _userId,
         data: {'onboarded': true},
+      ),
+      resource: 'user_prefs',
+    );
+  }
+
+  Future<void> setSelectedRingtone(RingtoneType ringtone) async {
+    await AppwriteErrorHandler.run(
+      () => _db.updateRow(
+        databaseId: kDbId,
+        tableId: kTableUserPrefs,
+        rowId: _userId,
+        data: {'selected_ringtone': ringtone.resourceId},
       ),
       resource: 'user_prefs',
     );

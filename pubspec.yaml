@@ -65,5 +65,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/sounds/
+    - assets/audio/
     - assets/legal/
     - assets/brand/
