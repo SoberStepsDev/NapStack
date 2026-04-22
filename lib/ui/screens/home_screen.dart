@@ -109,6 +109,17 @@ class _Header extends StatelessWidget {
               ),
 
               IconButton(
+                onPressed: () => context.push('/settings'),
+                icon: const Icon(
+                  Icons.settings_outlined,
+                  color: AppColors.kTextSecondary,
+                  size: 22,
+                ),
+                tooltip: 'Ustawienia',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              ),
+              IconButton(
                 onPressed: () => context.push('/legal'),
                 icon: const Icon(
                   Icons.policy_outlined,

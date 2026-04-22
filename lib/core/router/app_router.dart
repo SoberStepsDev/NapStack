@@ -7,6 +7,7 @@ import '../../ui/screens/legal_document_screen.dart';
 import '../../ui/screens/legal_info_screen.dart';
 import '../../ui/screens/nap_stack_screen.dart';
 import '../../ui/screens/paywall_screen.dart';
+import '../../ui/screens/settings_screen.dart';
 import '../../ui/screens/stats_screen.dart';
 import '../../ui/screens/timer_screen.dart';
 import '../../ui/shell/main_shell.dart';
@@ -79,6 +80,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/legal',
       builder: (_, __) => const LegalInfoScreen(),
+    ),
+    GoRoute(
+      path: '/settings',
+      pageBuilder: (context, state) => _slideUpPage(const SettingsScreen()),
     ),
   ],
 );
