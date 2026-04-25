@@ -62,6 +62,8 @@ class UserPrefsService {
     return defaults;
   }
 
+  /// Opcjonalny zapis cache Pro do `user_prefs` — **nigdy** do logiki gate w kliencie
+  /// (źródło: RevenueCat + [proStatusProvider]).
   Future<void> syncProStatus(bool isActive) async {
     await AppwriteErrorHandler.run(
       () => _db.updateRow(

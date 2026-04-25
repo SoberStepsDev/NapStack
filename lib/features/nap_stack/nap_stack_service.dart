@@ -18,8 +18,8 @@ class NapStackService {
   final TablesDB _db;
   final String _userId;
 
-  /// Server-side Pro verifier. Używany gdy klient twierdzi isPro == true,
-  /// by zapobiec obejściu limitu przez spreparowany request.
+  /// Weryfikacja Pro w Appwrite Function (RevenueCat) — **nigdy** nie ufamy polom
+  /// w rekordach stack dot. Pro; tu jedyna ścieżka gdy wykorzystany limit free.
   final ProGateService _proGate;
 
   static const _uuid = Uuid();
@@ -48,7 +48,6 @@ class NapStackService {
   Future<NapStackItem> addItem({
     required DateTime scheduledAt,
     required NapType napType,
-    required bool isPro,
   }) async {
     // 1. Walidacja
     final validation = DataValidator.validateStackItem(
@@ -67,23 +66,13 @@ class NapStackService {
       );
     }
 
-    // 2. Sprawdzenie limitu Free / weryfikacja Pro
-    //
-    // Strategia dwupoziomowa:
-    //   a) isPro == false → szybki check lokalny (brak funkcji, mniejsza latencja).
-    //   b) isPro == true  → server-side gate przez Appwrite Function (RevenueCat).
-    //      Zapobiega scenariuszowi: zmodyfikowany klient wymusza isPro: true
-    //      i pisze bezpośrednio do Appwrite z pominięciem limitu.
-    //      Przy błędzie funkcji (np. RC offline) → blokujemy (fail-secure).
-    if (!isPro) {
-      final current = await fetchStack();
-      if (current.length >= _freeLimit) throw NapStackLimitException();
-    } else {
+    // 2. Limit free (3 aktywne) — **bez** parametru isPro z klienta; przy >= 3
+    // tylko [ProGateService] (RevenueCat) może odblokować. Fail-secure przy błędzie funkcji.
+    final current = await fetchStack();
+    if (current.length >= _freeLimit) {
       final serverAllowed = await _proGate.checkProAccess(action: 'addToStack');
       if (!serverAllowed) {
-        // RevenueCat nie potwierdza Pro — traktuj jak Free.
-        final current = await fetchStack();
-        if (current.length >= _freeLimit) throw NapStackLimitException();
+        throw NapStackLimitException();
       }
     }
 

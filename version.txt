@@ -1,0 +1,2 @@
+1.0.0+1
+# Lustrzane odbicie pubspec version (name+build). Aktualizuj: script/bump_build.sh

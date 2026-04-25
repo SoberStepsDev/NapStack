@@ -18,14 +18,15 @@ class StatsService {
   /// Pobiera dane z Appwrite i oblicza statystyki.
   Future<WeeklyStats> fetchWeeklyStats() async {
     final sessions = await _sessions.fetchRecentSessions(days: 7);
-    return _compute(sessions);
+    return computeFromSessionList(sessions);
   }
 
   /// Oblicza statystyki z gotowej listy sesji (np. już załadowanych w UI).
   WeeklyStats computeFromSessions(List<NapSession> sessions) =>
-      _compute(sessions);
+      computeFromSessionList(sessions);
 
-  WeeklyStats _compute(List<NapSession> sessions) {
+  /// Logika czysta — nie wymaga [SessionsService] (testy, reuse).
+  static WeeklyStats computeFromSessionList(List<NapSession> sessions) {
     if (sessions.isEmpty) return WeeklyStats.empty;
 
     final completed = sessions.where((s) => s.completed).toList();
@@ -40,7 +41,7 @@ class StatsService {
     );
   }
 
-  int _activeDays(List<NapSession> sessions) {
+  static int _activeDays(List<NapSession> sessions) {
     return sessions
         .map((s) => DateUtils.dateOnly(s.startedAt))
         .toSet()
@@ -52,7 +53,7 @@ class StatsService {
   /// Reguła produktowa (udokumentowana):
   /// Jeśli dzisiaj nie ma jeszcze sesji, streak zaczyna od wczoraj.
   /// Dzięki temu użytkownik nie traci serii rano przed pierwszą drzemką.
-  int _calculateStreak(List<NapSession> completed) {
+  static int _calculateStreak(List<NapSession> completed) {
     if (completed.isEmpty) return 0;
 
     final completedDays = completed
@@ -65,8 +66,7 @@ class StatsService {
     final yesterday = today.subtract(const Duration(days: 1));
 
     // Jeśli dzisiaj brak sesji, zacznij od wczoraj
-    var expected =
-        completedDays.first == today ? today : yesterday;
+    var expected = completedDays.first == today ? today : yesterday;
 
     var streak = 0;
     for (final day in completedDays) {
@@ -80,7 +80,7 @@ class StatsService {
     return streak;
   }
 
-  NapType? _favoritePreset(List<NapSession> sessions) {
+  static NapType? _favoritePreset(List<NapSession> sessions) {
     if (sessions.isEmpty) return null;
 
     final counts = <NapType, int>{};

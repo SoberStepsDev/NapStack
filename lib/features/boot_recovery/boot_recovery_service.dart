@@ -80,6 +80,7 @@ class BootRecoveryService {
 
     final db = TablesDB(client);
     await _rescheduleFromAppwrite(db, userId);
+    await prefs.setBool(kPrefBootRecoveryDone, true);
   }
 
   static Future<void> _rescheduleFromAppwrite(

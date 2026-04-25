@@ -143,6 +143,22 @@ Na GitHub (repo → Settings → Secrets and variables → Actions → New repos
 
 ⚠️ **WAŻNE:** Te zmienne NIGDY nie trafiają do .env ani do repo.
 
+### 3a. Projekt „paused” (bezczynność)
+
+Jeśli `appwrite functions list` lub deploy zgłasza *„Project is paused due to inactivity”*, **wznów projekt** w [Appwrite Console](https://cloud.appwrite.io) (projekt → Settings / banner „Restore”) — inaczej żadne wywołania API (deploy, list) nie zadziałają.
+
+### 3b. Deploy kodu z repozytorium (CLI)
+
+Przy **aktywnym** projekcie, z katalogu głównego (po uzupełnieniu `.env` o klucze z sekcji 1):
+
+```bash
+bash script/deploy_pro_gate.sh <FUNCTION_ID>
+```
+
+`FUNCTION_ID` znajdziesz w Console → Functions → `pro_gate` (albo w GitHub Secret `APPWRITE_PRO_GATE_FN_ID`, jeśli go dodano).
+
+### 3c. Zmienne w panelu (obowiązkowo dla działania RC)
+
 1. Wejdź na [app.appwrite.io](https://app.appwrite.io) → NapStack project
 2. Functions → `pro_gate`
 3. **Settings → Environment Variables** → dodaj:

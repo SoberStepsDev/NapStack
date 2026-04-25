@@ -10,12 +10,41 @@ import '../../features/pro/pro_provider.dart';
 import '../../features/timer/nap_preset.dart';
 import '../widgets/preset_card.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isPro = ref.watch(proStatusProvider).value ?? false;
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final isPro = ref.watch(proStatusProvider).value?.isPro ?? false;
+
+    ref.listen<AsyncValue<ProUnlockStatus>>(
+      proStatusProvider,
+      (prev, next) {
+        final s = next.maybeWhen(data: (v) => v, orElse: () => null);
+        if (s == null || !s.staleCacheWarning) return;
+        final prevStale = prev?.maybeWhen(
+              data: (v) => v.staleCacheWarning,
+              orElse: () => false,
+            ) ??
+            false;
+        if (prevStale) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Brak potwierdzenia Pro w sieci — ostatni znany status może być nieaktualny.',
+              ),
+            ),
+          );
+        });
+      },
+    );
 
     return Scaffold(
       backgroundColor: AppColors.kBgBase,

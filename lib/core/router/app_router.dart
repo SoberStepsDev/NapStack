@@ -49,6 +49,13 @@ final appRouter = GoRouter(
     // Timer — poza shellem, bez bottom nav
     GoRoute(
       path: '/timer/:presetType',
+      redirect: (context, state) {
+        final typeName = state.pathParameters['presetType']!;
+        if (NapTypeName.tryFromName(typeName) == null) {
+          return '/';
+        }
+        return null;
+      },
       pageBuilder: (context, state) {
         final typeName = state.pathParameters['presetType']!;
         final preset = presetByType(NapTypeName.fromName(typeName));

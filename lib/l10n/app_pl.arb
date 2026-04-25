@@ -1,0 +1,6 @@
+{
+  "@@locale": "pl",
+  "alarmExactPermissionSnack": "Brak zgody na alarmy o dokładnym czasie — drzemka może nie wybudzić na czas. Ustawienia → Aplikacje → NapStack → Alarms & reminders / Powiadomienia.",
+  "notificationsDisabledSnack": "Powiadomienia wyłączone — włącz je dla NapStack w ustawieniach systemu, inaczej alarm i powiadomienia nie zadziałają.",
+  "alarmPermissionDenied": "Brak uprawnienia do alarmów o dokładnym czasie. Włącz alarmy dla NapStack w ustawieniach systemu, aby wybudzenie działało punktualnie."
+}

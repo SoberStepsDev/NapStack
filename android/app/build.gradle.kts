@@ -14,6 +14,11 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Wartości APPWRITE_*, RC_PUBLIC_KEY_ANDROID trafiają do kompilacji Dart jako
+// właściwość Gradle "dart-defines" — ustawia ją wyłącznie Flutter CLI przy
+// `flutter run` / `flutter build` (np. --dart-define, --dart-define-from-file).
+// Nie wklejaj sekretów tutaj; patrz README (sekcja build).
+
 android {
     namespace = "com.patrykdev.napstack"
     compileSdk = flutter.compileSdkVersion

@@ -10,12 +10,20 @@ extension NapTypeName on NapType {
         NapType.fullCycle => 'fullCycle',
       };
 
-  static NapType fromName(String name) => switch (name) {
+  static NapType? tryFromName(String name) => switch (name) {
         'powerNap' => NapType.powerNap,
         'coffeeNap' => NapType.coffeeNap,
         'fullCycle' => NapType.fullCycle,
-        _ => throw ArgumentError('Unknown NapType: $name'),
+        _ => null,
       };
+
+  static NapType fromName(String name) {
+    final t = tryFromName(name);
+    if (t == null) {
+      throw ArgumentError('Unknown NapType: $name');
+    }
+    return t;
+  }
 }
 
 /// Definicja presetu drzemki.

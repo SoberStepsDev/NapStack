@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/appwrite/appwrite_constants.dart';
 import '../timer/alarm_service.dart';
 import '../timer/nap_preset.dart';
 import 'nap_stack_item_model.dart';
@@ -45,17 +47,16 @@ class NapStackNotifier extends Notifier<NapStackState> {
   NapStackService get _service => ref.read(napStackServiceProvider);
 
   /// Dodaje drzemkę do stosu i planuje alarm systemowy.
+  /// Status Pro w Appwrite: tylko funkcja pro_gate (w [NapStackService.addItem]), nie z UI.
   Future<void> add({
     required DateTime scheduledAt,
     required NapType napType,
-    required bool isPro,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final item = await _service.addItem(
         scheduledAt: scheduledAt,
         napType: napType,
-        isPro: isPro,
       );
 
       final preset = presetByType(napType);
@@ -88,10 +89,35 @@ class NapStackNotifier extends Notifier<NapStackState> {
     await _syncFromAppwrite();
   }
 
+  /// Odczyt stosu z Appwrite bez odtwarzania alarmów (np. gdy Realtime niedostępny).
+  Future<void> syncFromServer() async {
+    await _syncFromAppwrite();
+  }
+
   /// Przywraca alarmy dla wszystkich niezrealizowanych elementów.
+  /// Najpierw weryfikuje listę w Appwrite; przy błędzie odczytu nie modyfikuje alarmów.
   Future<void> rescheduleAll() async {
-    final items = await _service.fetchStack();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(kPrefBootRecoveryDone, false);
+
+    final previousItems = state.items;
+    final List<NapStackItem> items;
+    try {
+      items = await _service.fetchStack();
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: e);
+      return;
+    }
+
+    state = state.copyWith(items: items, isLoading: false, error: null);
     final now = DateTime.now();
+    final newAlarmIds = items.map((e) => e.alarmId).toSet();
+
+    for (final p in previousItems) {
+      if (!newAlarmIds.contains(p.alarmId)) {
+        await AlarmService.cancel(p.alarmId);
+      }
+    }
 
     for (final item in items) {
       final preset = presetByType(item.napType);

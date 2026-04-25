@@ -1,0 +1,6 @@
+{
+  "@@locale": "en",
+  "alarmExactPermissionSnack": "No permission for exact alarms — your nap may not wake on time. Open Settings → Apps → NapStack → Alarms & reminders / Notifications.",
+  "notificationsDisabledSnack": "Notifications are off — enable them for NapStack in system settings, or alarms and notifications will not work.",
+  "alarmPermissionDenied": "Exact alarms are disabled. Allow alarms for NapStack in system settings so wake-up works on time."
+}

@@ -1,8 +1,11 @@
+import '../timer/alarm_ids.dart';
 import '../timer/nap_preset.dart';
 
 /// Pojedynczy element Nap Stack — zaplanowana drzemka z określoną godziną.
 ///
-/// Kolumny Appwrite (tabela: nap_stack):
+/// Kolumny Appwrite (tabela: `nap_stack`) — **brak** `isPro`: Pro tylko z RC w UI
+/// (np. `proStatusProvider`) i z Appwrite Function przy limicie drzemek.
+///
 ///   user_id        varchar(36)  — auth.uid()
 ///   scheduled_iso  varchar(30)  — ISO 8601 UTC pełna data + czas alarmu
 ///   nap_type       varchar(20)  — NapType.name
@@ -27,7 +30,7 @@ class NapStackItem {
   final bool done;
 
   /// ID alarmu FLN — unikalny per rekord, bez kolizji przy id: 0.
-  int get alarmId => scheduledAt.millisecondsSinceEpoch.hashCode & 0x7FFFFFFF;
+  int get alarmId => alarmIdForStackScheduledTime(scheduledAt);
 
   Map<String, dynamic> toAppwrite() => {
         'user_id': userId,

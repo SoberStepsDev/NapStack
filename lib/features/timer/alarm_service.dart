@@ -1,9 +1,14 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 
+import '../../core/errors/user_facing_exception.dart';
+import 'alarm_ids.dart';
 import 'nap_preset.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Jedyna klasa odpowiedzialna za planowanie alarmów systemowych.
 ///
@@ -18,6 +23,9 @@ class AlarmService {
   static final _fln = FlutterLocalNotificationsPlugin();
   static bool _initialized = false;
   static RingtoneType _ringtone = RingtoneType.defaultRingtone;
+
+  /// Po odrzuceniu exact alarm (po systemowym dialogu) — np. SnackBar z aplikacji.
+  static void Function()? onExactAlarmPermissionDenied;
 
   static void setRingtone(RingtoneType ringtone) => _ringtone = ringtone;
 
@@ -56,23 +64,25 @@ class AlarmService {
   ///
   /// Oba requesty są idempotentne — kolejne wywołania nie pokazują dialogu
   /// jeśli uprawnienie zostało już przyznane lub odrzucone.
-  static Future<void> requestRuntimePermissions() async {
+  ///
+  /// Zwraca `false` gdy powiadomienia są wyraźnie wyłączone (UI może pokazać link do ustawień).
+  static Future<bool> requestRuntimePermissions() async {
     final android = _fln.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
-    if (android == null) return; // Nie-Android — nic do roboty.
+    if (android == null) return true;
 
-    // 1. POST_NOTIFICATIONS — API 33+ (Android 13+).
-    //    Na niższych API metoda zwraca natychmiast bez dialogu.
-    await android.requestNotificationsPermission();
-
-    // 2. USE_FULL_SCREEN_INTENT — API 34+ (Android 14+).
-    //    Plugin udostępnia tylko request; na starszych API wywołanie jest bezbolesne.
+    final notifResult = await android.requestNotificationsPermission();
     await android.requestFullScreenIntentPermission();
+
+    final enabled = await android.areNotificationsEnabled();
+    if (enabled == false) return false;
+    if (notifResult == false) return false;
+    return true;
   }
 
   /// Planuje alarm wybudzenia.
   ///
-  /// [alarmId] — unikalny int; użyj `scheduledTime.hashCode & 0x7FFFFFFF`.
+  /// [alarmId] — unikalny int; dla stosu: [alarmIdForStackScheduledTime].
   /// [wakeAt]  — bezwzględny czas wybudzenia.
   /// [label]   — wyświetlana w powiadomieniu (np. "Power Nap — wstawaj!").
   static Future<void> scheduleWakeUp({
@@ -88,9 +98,25 @@ class AlarmService {
     final canSchedule =
         await androidImpl?.canScheduleExactNotifications() ?? true;
     if (!canSchedule) {
+      developer.log(
+        'canScheduleExactNotifications == false — żądanie SCHEDULE_EXACT_ALARM',
+        name: 'napstack.alarm',
+      );
       await androidImpl?.requestExactAlarmsPermission();
-      throw AlarmPermissionDeniedException();
+      final recheck =
+          await androidImpl?.canScheduleExactNotifications() ?? true;
+      if (!recheck) {
+        developer.log(
+          'Po dialogu nadal brak exact alarms',
+          name: 'napstack.alarm',
+        );
+        onExactAlarmPermissionDenied?.call();
+        throw const AlarmPermissionDeniedException();
+      }
     }
+
+    // Unikaj podwójnego schedule (np. BootReceiver + [NapStackNotifier] / Realtime).
+    await cancel(alarmId);
 
     final tzWakeAt = tz.TZDateTime.from(wakeAt, tz.local);
 
@@ -135,8 +161,12 @@ class AlarmService {
 }
 
 /// Rzucany gdy użytkownik nie przyznał uprawnień do exact alarms.
-class AlarmPermissionDeniedException implements Exception {
+class AlarmPermissionDeniedException extends UserFacingException {
+  const AlarmPermissionDeniedException();
+
   @override
-  String toString() =>
-      'AlarmPermissionDenied: Użytkownik musi zezwolić na alarmy w ustawieniach.';
+  String messageL10n(AppLocalizations l10n) => l10n.alarmPermissionDenied;
+
+  @override
+  String toString() => 'AlarmPermissionDeniedException';
 }
