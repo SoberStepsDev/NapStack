@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # --- Appwrite ---
   appwrite: 23.1.0
@@ -62,6 +64,7 @@ flutter_native_splash:
     image: assets/brand/napstack_icon_512.png
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - assets/sounds/

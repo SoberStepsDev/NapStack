@@ -4,7 +4,7 @@ import 'package:napstack/features/sessions/nap_session_model.dart';
 import 'package:napstack/features/stats/stats_service.dart';
 import 'package:napstack/features/timer/nap_preset.dart';
 
-// StatsService.computeFromSessions jest publiczne — testujemy przez nie,
+// StatsService.computeFromSessionList — testujemy przez static,
 // bo _calculateStreak i _activeDays są prywatne.
 //
 // SessionsService NIE jest potrzebny — pomijamy wstrzyknięcie
@@ -40,18 +40,13 @@ void main() {
 
   DateTime daysAgo(int n) => today().subtract(Duration(days: n));
 
-  // computeFromSessions() nigdy nie wywołuje SessionsService (_sessions).
-  // Używamy null as dynamic — bezpieczne dopóki testujemy wyłącznie
-  // ścieżkę synchroniczną. Gdyby testy pokryły fetchWeeklyStats(),
-  // potrzebny będzie mock/fake SessionsService.
-  // ignore: avoid_dynamic_calls
-  final sut = StatsService(null as dynamic);
+  // Logika w [StatsService.computeFromSessionList] — nie wymaga Appwrite.
 
   // ── WeeklyStats.empty ──────────────────────────────────────────────────────
 
   group('computeFromSessions — pusta lista', () {
     test('zwraca WeeklyStats.empty gdy brak sesji', () {
-      final stats = sut.computeFromSessions([]);
+      final stats = StatsService.computeFromSessionList([]);
       expect(stats.totalSessions, 0);
       expect(stats.completedSessions, 0);
       expect(stats.totalSleepMinutes, 0);
@@ -67,17 +62,17 @@ void main() {
       final sessions = [
         completedSession(today(), completed: false),
       ];
-      final stats = sut.computeFromSessions(sessions);
+      final stats = StatsService.computeFromSessionList(sessions);
       expect(stats.streak, 0);
     });
 
     test('tylko dziś → streak = 1', () {
-      final stats = sut.computeFromSessions([completedSession(today())]);
+      final stats = StatsService.computeFromSessionList([completedSession(today())]);
       expect(stats.streak, 1);
     });
 
     test('wczoraj i dziś → streak = 2', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today()),
         completedSession(daysAgo(1)),
       ]);
@@ -86,7 +81,7 @@ void main() {
 
     test('3 kolejne dni (wczoraj, przedwczoraj, 3 dni temu) bez dzisiaj → streak = 3', () {
       // Reguła: jeśli dziś brak sesji, zacznij od wczoraj.
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(daysAgo(1)),
         completedSession(daysAgo(2)),
         completedSession(daysAgo(3)),
@@ -96,7 +91,7 @@ void main() {
 
     test('luka w serii → streak liczy tylko ciągłą część', () {
       // Dziś + 3 dni temu — luka 2 dni temu i wczoraj.
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today()),
         completedSession(daysAgo(3)),
       ]);
@@ -104,7 +99,7 @@ void main() {
     });
 
     test('wiele sesji tego samego dnia liczy się jako 1 dzień serii', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today()),
         completedSession(today()), // duplikat dnia
         completedSession(daysAgo(1)),
@@ -115,7 +110,7 @@ void main() {
     test('dziś brak sesji, wczoraj brak sesji, przedwczoraj jest → streak = 0', () {
       // Reguła: jeśli dziś brak → sprawdzamy od wczoraj.
       // Wczoraj też brak → luka → 0.
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(daysAgo(2)),
         completedSession(daysAgo(3)),
       ]);
@@ -127,13 +122,13 @@ void main() {
         5,
         (i) => completedSession(daysAgo(i)),
       );
-      final stats = sut.computeFromSessions(sessions);
+      final stats = StatsService.computeFromSessionList(sessions);
       expect(stats.streak, 5);
     });
 
     test('nieukończone sesje nie liczą się do serii', () {
       // Tylko dziś jest ukończona; wczoraj nieukończona.
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today(), completed: true),
         completedSession(daysAgo(1), completed: false),
       ]);
@@ -145,7 +140,7 @@ void main() {
 
   group('_activeDays (via activeDaysCount)', () {
     test('sesje z tego samego dnia → 1 aktywny dzień', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today()),
         completedSession(today()),
       ]);
@@ -153,7 +148,7 @@ void main() {
     });
 
     test('3 różne dni → 3 aktywne dni', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today()),
         completedSession(daysAgo(1)),
         completedSession(daysAgo(2)),
@@ -166,14 +161,14 @@ void main() {
 
   group('_favoritePreset', () {
     test('jeden typ → jest faworytem', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today(), type: NapType.coffeeNap),
       ]);
       expect(stats.favoritePreset, NapType.coffeeNap);
     });
 
     test('dwa typy z remisem → zwraca pierwszy wg iteracji (min. jeden z nich)', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today(), type: NapType.powerNap),
         completedSession(daysAgo(1), type: NapType.coffeeNap),
       ]);
@@ -182,7 +177,7 @@ void main() {
     });
 
     test('powerNap dominuje → powerNap jest faworytem', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today(), type: NapType.powerNap),
         completedSession(daysAgo(1), type: NapType.powerNap),
         completedSession(daysAgo(2), type: NapType.coffeeNap),
@@ -195,7 +190,7 @@ void main() {
 
   group('totalSleepMinutes', () {
     test('sumuje tylko ukończone sesje', () {
-      final stats = sut.computeFromSessions([
+      final stats = StatsService.computeFromSessionList([
         completedSession(today(), completed: true),   // 20 min
         completedSession(daysAgo(1), completed: false), // nie liczy się
       ]);

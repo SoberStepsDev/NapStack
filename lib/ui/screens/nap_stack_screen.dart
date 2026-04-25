@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../core/errors/user_facing_exception.dart';
+import '../../core/keys/napstack_messenger_key.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../../features/nap_stack/nap_stack_notifier.dart';
 import '../../features/pro/pro_provider.dart';
 import '../../features/timer/nap_preset.dart';
@@ -15,7 +18,7 @@ class NapStackScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final stackState = ref.watch(napStackNotifierProvider);
-    final isPro = ref.watch(proStatusProvider).value ?? false;
+    final isPro = ref.watch(proStatusProvider).value?.isPro ?? false;
     final items = stackState.items;
 
     return Scaffold(
@@ -416,14 +419,20 @@ class _AddSheetState extends ConsumerState<_AddSheet> {
       scheduled = scheduled.add(const Duration(days: 1));
     }
 
+    final l10n = AppLocalizations.of(context);
     Navigator.pop(context);
 
-    final isPro = ref.read(proStatusProvider).value ?? false;
     await ref.read(napStackNotifierProvider.notifier).add(
           scheduledAt: scheduled,
           napType: _selectedType,
-          isPro: isPro,
         );
+
+    final err = ref.read(napStackNotifierProvider).error;
+    if (err is UserFacingException) {
+      napstackMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(err.messageL10n(l10n))),
+      );
+    }
   }
 }
 

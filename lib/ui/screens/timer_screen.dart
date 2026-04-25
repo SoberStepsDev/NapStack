@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/errors/user_facing_exception.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 import '../../features/timer/nap_preset.dart';
 import '../../features/timer/timer_notifier.dart';
 import '../../features/timer/timer_state.dart';
@@ -19,6 +21,18 @@ class TimerScreen extends ConsumerStatefulWidget {
 }
 
 class _TimerScreenState extends ConsumerState<TimerScreen> {
+  Future<void> _onStart() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(timerNotifierProvider.notifier).start(widget.preset);
+    } on UserFacingException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.messageL10n(l10n))),
+      );
+    }
+  }
+
   @override
   void dispose() {
     // stop() anuluje alarm systemowy i wyłącza Wakelock.
@@ -77,8 +91,7 @@ class _TimerScreenState extends ConsumerState<TimerScreen> {
                 _BottomControls(
                   state: state,
                   preset: widget.preset,
-                  onStart: () =>
-                      ref.read(timerNotifierProvider.notifier).start(widget.preset),
+                  onStart: _onStart,
                   onStop: _confirmStop,
                 ),
                 const SizedBox(height: 20),
@@ -273,7 +286,7 @@ class _BottomControls extends StatelessWidget {
 
   final TimerState state;
   final NapPreset preset;
-  final VoidCallback onStart;
+  final Future<void> Function() onStart;
   final VoidCallback onStop;
 
   @override
@@ -292,14 +305,16 @@ class _BottomControls extends StatelessWidget {
 class _StartButton extends StatelessWidget {
   const _StartButton({required this.preset, required this.onTap});
   final NapPreset preset;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
-        onPressed: onTap,
+        onPressed: () {
+          onTap();
+        },
         icon: const Icon(Icons.play_arrow_rounded, size: 22),
         label: Text('Start — ${preset.plannedMinutes} min'),
         style: ElevatedButton.styleFrom(

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/keys/napstack_messenger_key.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'l10n/app_localizations.dart';
 import 'features/auth/auth_provider.dart';
 import 'features/boot_recovery/boot_channel_handler.dart';
 import 'features/pro/purchase_service.dart';
@@ -13,7 +16,8 @@ import 'features/timer/alarm_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Boot recovery: przed pierwszym await (jak w boot_recovery_entry / BootReceiver).
+  // Kanał boot recovery zaraz po bindingu (przed await), żeby headless BootReceiver
+  // nie wyścigał z `invokeMethod` na niezarejestrowanym kanale.
   registerBootRecoveryChannel();
 
   // Wymuszaj tryb portretowy
@@ -45,13 +49,12 @@ class NapStackApp extends ConsumerWidget {
     final authState = ref.watch(authInitProvider);
 
     return MaterialApp.router(
+      scaffoldMessengerKey: napstackMessengerKey,
       title: 'NapStack',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
-      supportedLocales: const [
-        Locale('en'),
-        Locale('pl'),
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: appRouter,
       builder: (context, child) {
         // Obsługa stanu auth — splash / error / app
@@ -79,17 +82,34 @@ class _AppReadyState extends ConsumerState<_AppReady> {
   @override
   void initState() {
     super.initState();
-    _postAuthInit();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        // ignore: discarded_futures
+        _postAuthInit();
+      }
+    });
   }
 
   Future<void> _postAuthInit() async {
+    final l10n = AppLocalizations.of(context);
+
     // Konfiguracja RevenueCat z aktualnym userId
     await PurchaseService.configure(widget.userId);
 
+    AlarmService.onExactAlarmPermissionDenied = () {
+      napstackMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(l10n.alarmExactPermissionSnack)),
+      );
+    };
+
     // Uprawnienia runtime — POST_NOTIFICATIONS (API 33+) i USE_FULL_SCREEN_INTENT (API 34+).
-    // Wywoływane tutaj (po auth), bo dialogi systemowe wymagają aktywnej Activity.
-    // Kolejne wywołania po przyznaniu/odrzuceniu są idempotentne.
-    await AlarmService.requestRuntimePermissions();
+    final notifOk = await AlarmService.requestRuntimePermissions();
+    if (mounted && !notifOk) {
+      final messages = AppLocalizations.of(context);
+      napstackMessengerKey.currentState?.showSnackBar(
+        SnackBar(content: Text(messages.notificationsDisabledSnack)),
+      );
+    }
 
     // Realtime sync — startuje subskrypcje Appwrite
     ref.read(syncListenerProvider);

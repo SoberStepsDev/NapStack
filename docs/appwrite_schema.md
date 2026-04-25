@@ -38,6 +38,8 @@ Zaplanowane drzemki w Nap Stack.
 | `nap_type` | `varchar(20)` | tak | `powerNap` / `coffeeNap` / `fullCycle` |
 | `done` | `bool` | tak | Czy alarm minął / zrealizowany |
 
+**Brak kolumny `isPro`:** status Pro jest wyłącznie po stronie klienta (RevenueCat / `proGate` przy limicie 3 drzemek), nigdy w rekordzie stack.
+
 **Indeksy:**
 - `idx_stack_user_done_sched` — `(user_id, done, scheduled_iso)` — pod filtrowanie po użytkowniku i `done` oraz sort `scheduled_iso`
 
@@ -54,7 +56,7 @@ Preferencje użytkownika — jeden rekord per konto.
 | Kolumna | Typ Appwrite | Wymagane | Opis |
 |---------|-------------|----------|------|
 | `user_id` | `varchar(36)` | tak | `auth.uid()` |
-| `pro_active` | `bool` | tak | Cache statusu Pro (sync z RC) |
+| `pro_active` | `bool` | tak | Opcjonalny cache (np. analityka) — **nie** używaj do gatingu w kliencie; źródło: RC. |
 | `rc_user_id` | `varchar(100)` | tak | RevenueCat user ID do cross-device restore |
 | `onboarded` | `bool` | tak | Czy ukończył onboarding |
 
@@ -79,6 +81,8 @@ Dzięki temu:
 - Użytkownik A nie może odczytać ani zmodyfikować rekordów użytkownika B.
 - Brak uprawnień dla `Role.any()` — żaden rekord nie jest publiczny.
 - Konto anonimowe ma takie same prawa jak konto email — dopóki userId jest stały.
+
+Checklist przed release: `script/rls-audit.sh` (pomocnicze przypomnienie, bez wywołania API).
 
 ---
 

@@ -11,6 +11,9 @@ abstract final class SecureKeys {
   /// Przechowywana tu (a nie w SharedPreferences) bo wpływa na dostęp do funkcji.
   static const proCached = 'pro_cached';
 
+  /// ISO-8601 — kiedy zapisano [proCached] (długożyjące cache = ostrzeżenie).
+  static const proCachedAt = 'pro_cached_at';
+
   /// Email konta (po upgrade z anonimowego do email/password).
   /// Przechowywany tu, by móc odtworzyć sesję email po wygaśnięciu.
   static const accountEmail = 'account_email';
@@ -29,6 +32,19 @@ abstract final class SecureKeys {
 /// SharedPreferences → /data/data/com.app/shared_prefs/*.xml (plaintext, root-readable)
 /// SecureStorage     → Android Keystore (hardware-backed na API 23+, software fallback niżej)
 ///
+/// Odczyt lokalnego cache Pro (RevenueCat offline).
+class ProCacheSnapshot {
+  const ProCacheSnapshot({
+    required this.isProUnlocked,
+    required this.cachedAt,
+    required this.isStale,
+  });
+
+  final bool isProUnlocked;
+  final DateTime? cachedAt;
+  final bool isStale;
+}
+
 /// Boot recovery: [BootReceiver] rejestruje pluginy przez GeneratedPluginRegistrant,
 /// więc ten magazyn jest dostępny w headless engine tak jak w normalnym procesie.
 class SecureStorageService {
@@ -70,13 +86,31 @@ class SecureStorageService {
 
   Future<void> clearUserId() => delete(SecureKeys.userId);
 
-  Future<bool> getProCached() async {
+  /// Odczyt cache Pro z timestampem; brak `pro_cached_at` (stare wersje) = [isStale]=true.
+  Future<ProCacheSnapshot> getProCacheSnapshot() async {
     final value = await read(SecureKeys.proCached);
-    return value == 'true';
+    final isPro = value == 'true';
+    final atRaw = await read(SecureKeys.proCachedAt);
+    DateTime? cachedAt;
+    if (atRaw != null && atRaw.isNotEmpty) {
+      cachedAt = DateTime.tryParse(atRaw);
+    }
+    final isStale = cachedAt == null ||
+        DateTime.now().difference(cachedAt) > const Duration(days: 7);
+    return ProCacheSnapshot(
+      isProUnlocked: isPro,
+      cachedAt: cachedAt,
+      isStale: isStale,
+    );
   }
 
-  Future<void> setProCached(bool isActive) =>
-      write(SecureKeys.proCached, isActive.toString());
+  Future<void> setProCached(bool isActive) async {
+    await write(SecureKeys.proCached, isActive.toString());
+    await write(
+      SecureKeys.proCachedAt,
+      DateTime.now().toUtc().toIso8601String(),
+    );
+  }
 
   // ── Email/password credentials (po upgrade z konta anonimowego) ────────────
 

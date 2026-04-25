@@ -2,16 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'purchase_service.dart';
 
-/// Stan Pro — AsyncValue bool z możliwością ręcznego odświeżenia.
+export 'purchase_service.dart' show PurchaseException, ProUnlockStatus;
+
+/// Stan Pro + ewent. [ProUnlockStatus.staleCacheWarning] (offline, stary cache).
 ///
-/// Użycie (gate Pro feature):
-///   final isPro = ref.watch(proStatusProvider).value ?? false;
-///   if (!isPro) GoRouter.of(context).push('/paywall');
+/// Użycie: `ref.watch(proStatusProvider).value?.isPro ?? false`
 ///
-/// Użycie po zakupie / przywróceniu:
-///   ref.invalidate(proStatusProvider);
-final proStatusProvider = FutureProvider.autoDispose<bool>((ref) async {
-  return ref.read(purchaseServiceProvider).isProUnlocked();
+/// Po zakupie / przywróceniu: `ref.invalidate(proStatusProvider)`.
+final proStatusProvider = FutureProvider.autoDispose<ProUnlockStatus>((ref) async {
+  return ref.read(purchaseServiceProvider).getProUnlockStatus();
 });
 
 /// Notifier dla akcji zakupu/przywrócenia — emituje nowy stan Pro po operacji.
@@ -33,6 +32,8 @@ class ProActionsNotifier extends Notifier<AsyncValue<bool>> {
     state = await AsyncValue.guard(() => _service.purchasePro());
     if (!state.hasError) {
       ref.invalidate(proStatusProvider);
+      // Wymuś odczyt Pro z RC — reszta UI (proStatusProvider) ma aktualne dane przed klatką.
+      await ref.read(proStatusProvider.future);
     }
   }
 
@@ -41,6 +42,7 @@ class ProActionsNotifier extends Notifier<AsyncValue<bool>> {
     state = await AsyncValue.guard(() => _service.restorePurchases());
     if (!state.hasError) {
       ref.invalidate(proStatusProvider);
+      await ref.read(proStatusProvider.future);
     }
   }
 }

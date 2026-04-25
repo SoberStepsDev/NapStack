@@ -1,9 +1,9 @@
 # Build .aab na serwerach GitHub (możesz zamknąć laptop po push + ręcznym starcie workflow).
-# Wymagane GitHub Secrets (Settings → Secrets):
+# Wymagane GitHub Secrets (Settings → Secrets and variables → Actions):
 #   ANDROID_KEY_PROPERTIES — pełna treść pliku key.properties
 #   ANDROID_KEYSTORE_BASE64 — base64 pliku .jks (np. base64 -i napstack-release.jks | pbcopy)
-# Opcjonalnie:
-#   DART_DEFINES_JSON — treść dart_defines.local.json (RC + Appwrite define)
+#   APPWRITE_PROJECT_ID — ID projektu Appwrite (to samo co lokalne .env)
+#   RC_PUBLIC_KEY_ANDROID — publiczny klucz SDK RevenueCat (Android)
 name: Android release bundle
 
 on:
@@ -40,21 +40,19 @@ jobs:
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/napstack-upload.jks
           ls -lh android/app/napstack-upload.jks
 
-      - name: Dart defines (optional)
-        env:
-          DART_DEFINES_JSON: ${{ secrets.DART_DEFINES_JSON }}
-        run: |
-          if [ -n "$DART_DEFINES_JSON" ]; then
-            printf '%s\n' "$DART_DEFINES_JSON" > dart_defines.local.json
-          fi
-
       - name: Build app bundle
+        env:
+          APPWRITE_PROJECT_ID: ${{ secrets.APPWRITE_PROJECT_ID }}
+          RC_PUBLIC_KEY_ANDROID: ${{ secrets.RC_PUBLIC_KEY_ANDROID }}
         run: |
-          if [ -f dart_defines.local.json ]; then
-            flutter build appbundle --release --dart-define-from-file=dart_defines.local.json
-          else
-            flutter build appbundle --release
+          set -e
+          if [ -z "$APPWRITE_PROJECT_ID" ] || [ -z "$RC_PUBLIC_KEY_ANDROID" ]; then
+            echo "Ustaw sekrety APPWRITE_PROJECT_ID i RC_PUBLIC_KEY_ANDROID w repozytorium." >&2
+            exit 1
           fi
+          flutter build appbundle --release \
+            --dart-define=APPWRITE_PROJECT_ID="$APPWRITE_PROJECT_ID" \
+            --dart-define=RC_PUBLIC_KEY_ANDROID="$RC_PUBLIC_KEY_ANDROID"
 
       - uses: actions/upload-artifact@v4
         with:

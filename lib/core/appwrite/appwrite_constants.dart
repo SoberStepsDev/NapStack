@@ -9,7 +9,7 @@ const kAppwriteEndpoint = String.fromEnvironment(
 
 const kAppwriteProjectId = String.fromEnvironment(
   'APPWRITE_PROJECT_ID',
-  defaultValue: '69d7218d001dd20138f6',
+  defaultValue: '',
 );
 
 /// Baza danych
@@ -24,3 +24,5 @@ const kTableUserPrefs = 'user_prefs';
 const kPrefUserId = 'appwrite_user_id';
 const kPrefSessionSecret = 'appwrite_session_secret';
 const kPrefProCached = 'pro_cached';
+/// BootReceiver zakończył odtwarzanie alarmów; [NapStackNotifier.rescheduleAll] zeruje, żeby uniknąć lock-out po Realtime.
+const kPrefBootRecoveryDone = 'boot_recovery_done';

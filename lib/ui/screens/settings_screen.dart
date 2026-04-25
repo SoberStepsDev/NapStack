@@ -14,7 +14,7 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isPro = ref.watch(proStatusProvider).value ?? false;
+    final isPro = ref.watch(proStatusProvider).value?.isPro ?? false;
 
     return Scaffold(
       backgroundColor: AppColors.kBgBase,

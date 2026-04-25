@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Wczytuje wybrane klucze z pliku .env i zapisuje JSON dla --dart-define-from-file.
 
-Domyślny plik: ~/Documents/SoberSteps-env-secrets/.env
+Domyślny plik: `.env` w katalogu głównym NapStack (lub nadpisz pierwszym argumentem).
 Uruchom z katalogu głównym projektu:
 
   python3 tool/sync_dart_defines_from_env.py
@@ -33,9 +33,7 @@ def load_env_key(path: Path, name: str) -> str | None:
 
 def main() -> int:
     root = Path(__file__).resolve().parent.parent
-    default_env = (
-        Path.home() / "Documents" / "SoberSteps-env-secrets" / ".env"
-    )
+    default_env = root / ".env"
     env_path = Path(sys.argv[1]).expanduser() if len(sys.argv) > 1 else default_env
     if not env_path.is_file():
         print("Brak pliku .env:", env_path, file=sys.stderr)

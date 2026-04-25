@@ -36,7 +36,7 @@ abstract final class DataValidator {
     if (duration.inSeconds < 60) {
       errors.add('Sesja krótsza niż 60s (${duration.inSeconds}s) — prawdopodobny błąd');
     }
-    if (duration.inHours > 3) {
+    if (duration > const Duration(hours: 3)) {
       errors.add('Sesja dłuższa niż 3 godziny — prawdopodobny błąd');
     }
 
